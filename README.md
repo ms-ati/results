@@ -30,7 +30,48 @@ parseAge('abc')
 #=> #<struct Results::Bad error="invalid value for integer: \"abc\"">
 ```
 
-### Filters
+### Chained Filters and Validations
+
+Once you have a `Good` or `Bad`, you can chain additional boolean filters using `#when` and `#whenNot`.
+
+```ruby
+def parseAge21To45(str)
+  parseAge(str)
+    .when('under 45')    { |v| v < 45 }
+    .whenNot('under 21') { |v| v < 21 }
+end
+
+parseAge21To45(29)
+#=> #<struct Results::Good value=29>
+
+parseAge21To45(65)
+#=> #<struct Results::Bad error="not under 45">
+
+parseAge21To45(1)
+#=> #<struct Results::Bad error="under 21">
+```
+
+Or, if you'd prefer, chain validations (which returns `Good` or `Bad` instead of `Boolean`) using `#validate`.
+
+```ruby
+def parseAgeRange(str)
+  parseAge(str).validate do |v|
+    case v
+    when 21...45: Results::Good(v)
+    else          Results::Bad('not between 21 and 45: ' + v.to_s)
+    end
+  end
+end
+
+parseAgeRange(29)
+#=> #<struct Results::Good value=29>
+
+parseAgeRange(65)
+#=> #<struct Results::Bad error="not between 21 and 45: 65">
+```
+
+For convenience, the `#when` and `#whenNot` methods also accept a lambda for
+the error message, in case you want to format the error message based on the value provided.
 
 More coming soon...
 
