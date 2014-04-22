@@ -69,12 +69,40 @@ describe Results do
   # Construct directly as Good
   ##
   describe Results::Good do
+    let(:good) { Results::Good.new(1) }
+
+    describe '#when' do
+      context 'with passing predicate' do
+        subject { good.when('dummy') { |_| true } }
+        it { is_expected.to be good }
+      end
+
+      context 'with failing predicate and string error message' do
+        subject { good.when('predicate failed') { |_| false } }
+        it { is_expected.to eq Results::Bad.new('predicate failed') }
+      end
+
+      context 'with failing predicate and callable error message' do
+        subject { good.when(lambda { |v| "predicate failed for: #{v}" }) { |_| false } }
+        it { is_expected.to eq Results::Bad.new('predicate failed for: 1') }
+      end
+    end
+
   end
 
   ##
   # Construct directly as Bad
   ##
   describe Results::Bad do
+    let(:bad) { Results::Bad.new('epic fail') }
+
+    describe '#when' do
+      context 'with any predicate' do
+        subject { bad.when('dummy') { |_| true } }
+        it { is_expected.to be bad }
+      end
+    end
+
   end
 
 end
