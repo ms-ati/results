@@ -51,7 +51,7 @@ parseAge21To45(1)
 #=> #<struct Results::Bad error="under 21">
 ```
 
-Or, if you'd prefer, chain validations (which returns `Good` or `Bad` instead of `Boolean`) using `#validate`.
+Or, if you'd prefer, chain validations (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
 
 ```ruby
 def parseAgeRange(str)
