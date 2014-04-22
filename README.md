@@ -5,7 +5,8 @@
 [![Code Climate](https://codeclimate.com/github/ms-ati/results.png)](https://codeclimate.com/github/ms-ati/results)
 [![Coverage Status](https://coveralls.io/repos/ms-ati/results/badge.png)](https://coveralls.io/r/ms-ati/results)
 
-A functional combinator of results which are either Good or Bad inspired by the [ScalaUtils][1] [Or and Every][1] classes.
+A functional combinator of results which are either Good or Bad inspired by the [ScalaUtils][1] library's
+[Or and Every][2] classes.
 
 [1]: http://www.scalautils.org
 [2]: http://www.scalautils.org/user_guide/OrAndEvery
