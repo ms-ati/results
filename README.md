@@ -13,9 +13,24 @@ A functional combinator of results which are either Good or Bad inspired by the 
 
 ## Usage
 
+### Basic validation
+
+By default, `Results` will transform an `ArgumentError` into a `Bad`, allowing built-in
+numeric conversion to work directly as a validator.
+
 ```ruby
-# Coming soon...
+def parseAge(str)
+  Results.new { Integer(str) }
+end
+
+parseAge(1)
+#=> #<struct Results::Good value=1>
+
+parseAge('abc')
+#=> #<struct Results::Bad error="invalid value for integer: \"abc\"">
 ```
+
+### Filters
 
 More coming soon...
 
