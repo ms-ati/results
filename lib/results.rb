@@ -31,19 +31,11 @@ module Results
 
   Good = Struct.new(:value) do
     def when(msg_or_proc)
-      if yield(value)
-        self
-      else
-        Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : msg_or_proc)
-      end
+      validate { |v| yield(v) ? self : Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : msg_or_proc) }
     end
 
     def when_not(msg_or_proc)
-      if !yield(value)
-        self
-      else
-        Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : 'not ' + msg_or_proc)
-      end
+      validate { |v| !yield(v) ? self : Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : 'not ' + msg_or_proc) }
     end
 
     def validate
