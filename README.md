@@ -1,4 +1,4 @@
-= Results =
+# Results
 [![Gem Version](https://badge.fury.io/rb/results.png)](http://badge.fury.io/rb/results)
 [![Build Status](https://travis-ci.org/ms-ati/results.png)](https://travis-ci.org/ms-ati/results)
 [![Dependency Status](https://gemnasium.com/ms-ati/results.png)](https://gemnasium.com/ms-ati/results)
