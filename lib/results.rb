@@ -37,10 +37,22 @@ module Results
         Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : msg_or_proc)
       end
     end
+
+    def when_not(msg_or_proc)
+      if !yield(value)
+        self
+      else
+        Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : 'not ' + msg_or_proc)
+      end
+    end
   end
 
   Bad  = Struct.new(:error) do
     def when(msg_or_proc)
+      self
+    end
+
+    def when_not(msg_or_proc)
       self
     end
   end

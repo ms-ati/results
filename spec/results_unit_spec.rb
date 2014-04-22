@@ -72,19 +72,36 @@ describe Results do
     let(:good) { Results::Good.new(1) }
 
     describe '#when' do
-      context 'with passing predicate' do
+      context 'with true predicate' do
         subject { good.when('dummy') { |_| true } }
         it { is_expected.to be good }
       end
 
-      context 'with failing predicate and string error message' do
+      context 'with false predicate and string error message' do
         subject { good.when('predicate failed') { |_| false } }
         it { is_expected.to eq Results::Bad.new('predicate failed') }
       end
 
-      context 'with failing predicate and callable error message' do
+      context 'with false predicate and callable error message' do
         subject { good.when(lambda { |v| "predicate failed for: #{v}" }) { |_| false } }
         it { is_expected.to eq Results::Bad.new('predicate failed for: 1') }
+      end
+    end
+
+    describe '#when_not' do
+      context 'with false predicate' do
+        subject { good.when_not('dummy') { |_| false } }
+        it { is_expected.to be good }
+      end
+
+      context 'with true predicate and string error message, prepends "not"' do
+        subject { good.when_not('evaluated as false') { |_| true } }
+        it { is_expected.to eq Results::Bad.new('not evaluated as false') }
+      end
+
+      context 'with failing predicate and callable error message' do
+        subject { good.when_not(lambda { |v| "was not false: #{v}" }) { |_| true } }
+        it { is_expected.to eq Results::Bad.new('was not false: 1') }
       end
     end
 
@@ -97,10 +114,21 @@ describe Results do
     let(:bad) { Results::Bad.new('epic fail') }
 
     describe '#when' do
+
       context 'with any predicate' do
         subject { bad.when('dummy') { |_| true } }
         it { is_expected.to be bad }
       end
+
+    end
+
+    describe '#when_not' do
+
+      context 'with any predicate' do
+        subject { bad.when_not('dummy') { |_| true } }
+        it { is_expected.to be bad }
+      end
+
     end
 
   end
