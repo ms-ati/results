@@ -16,7 +16,7 @@ describe Results do
     context 'with defaults' do
       context 'when block raises ArgumentError' do
         subject { Results.new { Integer('abc') } }
-        it { is_expected.to eq Results::Bad.new('invalid value for integer: "abc"') }
+        it { is_expected.to be_a Results::Bad }
       end
 
       context 'when block raises StandardError' do
@@ -54,12 +54,12 @@ describe Results do
     context 'with defaults' do
       context 'when argument error due to invalid integer' do
         subject { Results.transform_exception_message(begin; Integer('abc'); rescue => e; e; end) }
-        it { is_expected.to eq 'invalid value for integer: "abc"' }
+        it { is_expected.to match /invalid (value|string) for integer(: "abc")?/ } # format varies on MRI, jruby, rbx
       end
 
       context 'when argument error due to invalid float' do
         subject { Results.transform_exception_message(begin; Float('abc'); rescue => e; e; end) }
-        it { is_expected.to eq 'invalid value for float: "abc"' }
+        it { is_expected.to match /invalid (value|string) for float(: "abc")?/ }   # format varies on MRI, jruby, rbx
       end
     end
 

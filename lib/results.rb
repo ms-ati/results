@@ -3,7 +3,7 @@ require 'rescuer'
 module Results
   DEFAULT_EXCEPTIONS_TO_RESCUE_AS_BADS = [ArgumentError]
   DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS = {
-    ArgumentError => lambda { |m| m.gsub(/\Ainvalid value for [A-Z][a-zA-Z]+\(\):/) { |s| s.gsub('()', '').downcase } }
+    ArgumentError => lambda { |m| m.gsub(/\Ainvalid (value|string) for [A-Z][a-zA-Z]+/) { |s| s.gsub('()', '').downcase } }
   }
 
   def new
