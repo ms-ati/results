@@ -105,6 +105,18 @@ describe Results do
       end
     end
 
+    describe '#validate' do
+      context 'with return of good' do
+        subject { good.validate { |_| good } }
+        it { is_expected.to be good }
+      end
+
+      context 'with return of bad' do
+        subject { good.validate { |v| Results::Bad.new("no good: #{v}") } }
+        it { is_expected.to eq Results::Bad.new('no good: 1') }
+      end
+    end
+
   end
 
   ##
@@ -114,21 +126,24 @@ describe Results do
     let(:bad) { Results::Bad.new('epic fail') }
 
     describe '#when' do
-
       context 'with any predicate' do
         subject { bad.when('dummy') { |_| true } }
         it { is_expected.to be bad }
       end
-
     end
 
     describe '#when_not' do
-
       context 'with any predicate' do
         subject { bad.when_not('dummy') { |_| true } }
         it { is_expected.to be bad }
       end
+    end
 
+    describe '#validate' do
+      context 'with any function' do
+        subject { bad.validate { |_| Result::Good.new(2) } }
+        it { is_expected.to be bad }
+      end
     end
 
   end

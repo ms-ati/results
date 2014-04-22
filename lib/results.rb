@@ -45,6 +45,10 @@ module Results
         Bad.new(msg_or_proc.respond_to?(:call) ? msg_or_proc.call(value) : 'not ' + msg_or_proc)
       end
     end
+
+    def validate
+      yield(value)
+    end
   end
 
   Bad  = Struct.new(:error) do
@@ -53,6 +57,10 @@ module Results
     end
 
     def when_not(msg_or_proc)
+      self
+    end
+
+    def validate
       self
     end
   end
