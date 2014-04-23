@@ -14,11 +14,7 @@ module Results
     exceptions_xforms = DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS
 
     rescued = Rescuer.new(*exceptions_as_bad) do
-      if input_or_proc.respond_to?(:call)
-        input_or_proc.call
-      else
-        block_given? ? yield(input_or_proc) : input_or_proc
-      end
+      call_or_yield_or_return(input_or_proc) { |input| block_given? ? yield(input) : input }
     end
 
     from_rescuer(rescued, input_or_proc, exceptions_xforms)
@@ -60,14 +56,14 @@ module Results
     def when(msg_or_proc_or_filter)
       validate do |v|
         predicate, msg_or_proc = extract_predicate_and_message(msg_or_proc_or_filter, v) { yield v }
-        predicate ? self : Bad.new(yield_or_call(msg_or_proc, v) { |msg| 'not ' + msg }, v)
+        predicate ? self : Bad.new(Results.call_or_yield_or_return(msg_or_proc, v) { |msg| 'not ' + msg }, v)
       end
     end
 
     def when_not(msg_or_proc_or_filter)
       validate do |v|
         predicate, msg_or_proc = extract_predicate_and_message(msg_or_proc_or_filter, v) { yield v }
-        !predicate ? self : Bad.new(yield_or_call(msg_or_proc, v), v)
+        !predicate ? self : Bad.new(Results.call_or_yield_or_return(msg_or_proc, v), v)
       end
     end
 
@@ -78,21 +74,13 @@ module Results
     private
 
     def extract_predicate_and_message(msg_or_proc_or_filter, v)
-      if msg_or_proc_or_filter.respond_to?(:call) &&
-        msg_or_proc_or_filter.respond_to?(:message)
+      if msg_or_proc_or_filter.respond_to?(:call) && msg_or_proc_or_filter.respond_to?(:message)
         [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
       else
         [yield, msg_or_proc_or_filter]
       end
     end
 
-    def yield_or_call(msg_or_proc, *args)
-      if msg_or_proc.respond_to?(:call)
-        msg_or_proc.call(*args)
-      else
-        block_given? ? yield(msg_or_proc) : msg_or_proc
-      end
-    end
   end
 
   Bad = Struct.new(:error, :input) do
@@ -106,6 +94,16 @@ module Results
 
     def validate
       self
+    end
+  end
+
+  # Helper which will call its argument, or yield it to a block, or simply return it,
+  #   depending on what is possible with the given input
+  def self.call_or_yield_or_return(proc_or_value, *args)
+    if proc_or_value.respond_to?(:call)
+      proc_or_value.call(*args)
+    else
+      block_given? ? yield(proc_or_value) : proc_or_value
     end
   end
 
