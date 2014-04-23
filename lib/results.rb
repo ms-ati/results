@@ -59,28 +59,14 @@ module Results
   Good = Struct.new(:value) do
     def when(msg_or_proc_or_filter)
       validate do |v|
-        predicate, msg_or_proc =
-          if msg_or_proc_or_filter.respond_to?(:call) &&
-             msg_or_proc_or_filter.respond_to?(:message)
-            [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
-          else
-            [yield(v), msg_or_proc_or_filter]
-          end
-
+        predicate, msg_or_proc = extract_predicate_and_message(msg_or_proc_or_filter, v) { yield v }
         predicate ? self : Bad.new(yield_or_call(msg_or_proc, v) { |msg| 'not ' + msg }, v)
       end
     end
 
     def when_not(msg_or_proc_or_filter)
       validate do |v|
-        predicate, msg_or_proc =
-          if msg_or_proc_or_filter.respond_to?(:call) &&
-             msg_or_proc_or_filter.respond_to?(:message)
-            [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
-          else
-            [yield(v), msg_or_proc_or_filter]
-          end
-
+        predicate, msg_or_proc = extract_predicate_and_message(msg_or_proc_or_filter, v) { yield v }
         !predicate ? self : Bad.new(yield_or_call(msg_or_proc, v), v)
       end
     end
@@ -90,6 +76,15 @@ module Results
     end
 
     private
+
+    def extract_predicate_and_message(msg_or_proc_or_filter, v)
+      if msg_or_proc_or_filter.respond_to?(:call) &&
+        msg_or_proc_or_filter.respond_to?(:message)
+        [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
+      else
+        [yield, msg_or_proc_or_filter]
+      end
+    end
 
     def yield_or_call(msg_or_proc, *args)
       if msg_or_proc.respond_to?(:call)
