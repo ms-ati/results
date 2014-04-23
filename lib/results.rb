@@ -9,14 +9,19 @@ module Results
     end
   }
 
-  def new(input)
-    raise ArgumentError, 'no block given' unless block_given?
-
+  def new(input_or_proc)
     exceptions_as_bad = DEFAULT_EXCEPTIONS_TO_RESCUE_AS_BADS
     exceptions_xforms = DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS
 
-    rescued = Rescuer.new(*exceptions_as_bad) { block_given? ? yield(input) : input }
-    from_rescuer(rescued, input, exceptions_xforms)
+    rescued = Rescuer.new(*exceptions_as_bad) do
+      if input_or_proc.respond_to?(:call)
+        input_or_proc.call
+      else
+        block_given? ? yield(input_or_proc) : input_or_proc
+      end
+    end
+
+    from_rescuer(rescued, input_or_proc, exceptions_xforms)
   end
   module_function :new
 
@@ -51,10 +56,10 @@ module Results
     private
 
     def yield_or_call(msg_or_proc, *args)
-      if !msg_or_proc.respond_to?(:call)
-        block_given? ? yield(msg_or_proc) : msg_or_proc
-      else
+      if msg_or_proc.respond_to?(:call)
         msg_or_proc.call(*args)
+      else
+        block_given? ? yield(msg_or_proc) : msg_or_proc
       end
     end
   end

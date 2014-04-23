@@ -8,6 +8,31 @@ describe Results do
   ##
   describe '.new' do
 
+    context 'with non-callable value' do
+      subject { Results.new(1) }
+      it { is_expected.to eq Results::Good.new(1) }
+    end
+
+    context 'with callable value' do
+      context 'when callable does *not* raise' do
+        subject { Results.new(lambda { 1 }) }
+        it { is_expected.to eq Results::Good.new(1) }
+      end
+
+      context 'with defaults' do
+        context 'when callable raises ArgumentError' do
+          let(:callable) { lambda { Integer('abc') } }
+          subject { Results.new(callable) }
+          it { is_expected.to eq Results::Bad.new('invalid value for integer', callable) }
+        end
+
+        context 'when callable raises StandardError' do
+          subject { lambda { Results.new(lambda { raise StandardError.new('abc') }) } }
+          it { is_expected.to raise_error(StandardError, 'abc') }
+        end
+      end
+    end
+
     context 'with block' do
       context 'when block does *not* raise' do
         subject { Results.new(1) { |v| v } }
