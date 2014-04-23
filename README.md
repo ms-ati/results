@@ -20,14 +20,14 @@ numeric conversion to work directly as a validator.
 
 ```ruby
 def parseAge(str)
-  Results.new { Integer(str) }
+  Results.new(str) { |v| Integer(v) }
 end
 
-parseAge(1)
+parseAge('1')
 #=> #<struct Results::Good value=1>
 
 parseAge('abc')
-#=> #<struct Results::Bad error="invalid value for integer: \"abc\"">
+#=> #<struct Results::Bad error="invalid value for integer", input="abc">
 ```
 
 ### Chained Filters and Validations
@@ -36,38 +36,39 @@ Once you have a `Good` or `Bad`, you can chain additional boolean filters using 
 
 ```ruby
 def parseAge21To45(str)
-  parseAge(str)
-    .when     'under 45' { |v| v < 45 }
-    .when_not 'under 21' { |v| v < 21 }
+  # Syntax workaround due to lack of support for chaining on blocks
+  a = parseAge(str)
+  b = a.when    ('under 45') { |v| v < 45 }
+  _ = b.when_not('under 21') { |v| v < 21 }
 end
 
-parseAge21To45(29)
+parseAge21To45('29')
 #=> #<struct Results::Good value=29>
 
-parseAge21To45(65)
-#=> #<struct Results::Bad error="not under 45">
+parseAge21To45('65')
+#=> #<struct Results::Bad error="not under 45", input=65>
 
-parseAge21To45(1)
-#=> #<struct Results::Bad error="under 21">
+parseAge21To45('1')
+#=> #<struct Results::Bad error="under 21", input=1>
 ```
 
-Or, if you'd prefer, chain validations (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
+Or you can chain validation functions (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
 
 ```ruby
 def parseAgeRange(str)
   parseAge(str).validate do |v|
     case v
-    when 21...45: Results::Good(v)
-    else          Results::Bad('not between 21 and 45: ' + v.to_s)
+    when 21...45 then Results::Good.new(v)
+    else              Results::Bad.new('not between 21 and 45', v)
     end
   end
 end
 
-parseAgeRange(29)
+parseAgeRange('29')
 #=> #<struct Results::Good value=29>
 
-parseAgeRange(65)
-#=> #<struct Results::Bad error="not between 21 and 45: 65">
+parseAgeRange('65')
+#=> #<struct Results::Bad error="not between 21 and 45", input=65>
 ```
 
 For convenience, the `#when` and `#whenNot` methods also accept a lambda for

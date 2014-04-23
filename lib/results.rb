@@ -3,21 +3,27 @@ require 'rescuer'
 module Results
   DEFAULT_EXCEPTIONS_TO_RESCUE_AS_BADS = [ArgumentError]
   DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS = {
-    ArgumentError => lambda { |m| m.gsub(/\Ainvalid (value|string) for [A-Z][a-zA-Z]+/) { |s| s.gsub('()', '').downcase } }
+    ArgumentError => lambda do |m|
+      r = /\Ainvalid (value|string) for ([A-Z][a-z]+)(\(\))?(: ".*")?\Z/
+      m.gsub(r) { |_| "invalid value for #{$2}".downcase }
+    end
   }
 
-  def new
+  def new(input)
     raise ArgumentError, 'no block given' unless block_given?
+
     exceptions_as_bad = DEFAULT_EXCEPTIONS_TO_RESCUE_AS_BADS
     exceptions_xforms = DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS
-    from_rescuer(Rescuer.new(*exceptions_as_bad) { yield }, exceptions_xforms)
+
+    rescued = Rescuer.new(*exceptions_as_bad) { block_given? ? yield(input) : input }
+    from_rescuer(rescued, input, exceptions_xforms)
   end
   module_function :new
 
-  def from_rescuer(success_or_failure, exception_message_transforms = DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS)
+  def from_rescuer(success_or_failure, input, exception_message_transforms = DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS)
     success_or_failure.transform(
       lambda { |v| Good.new(v) },
-      lambda { |e| Bad.new(transform_exception_message(e, exception_message_transforms)) }
+      lambda { |e| Bad.new(transform_exception_message(e, exception_message_transforms), input) }
     ).get
   end
   module_function :from_rescuer
@@ -31,11 +37,11 @@ module Results
 
   Good = Struct.new(:value) do
     def when(msg_or_proc)
-      validate { |v| yield(v) ? self : Bad.new(yield_or_call(msg_or_proc, value)) }
+      validate { |v| yield(v) ? self : Bad.new(yield_or_call(msg_or_proc, v) { |msg| 'not ' + msg }, v) }
     end
 
     def when_not(msg_or_proc)
-      validate { |v| !yield(v) ? self : Bad.new(yield_or_call(msg_or_proc, value) { |msg| 'not ' + msg }) }
+      validate { |v| !yield(v) ? self : Bad.new(yield_or_call(msg_or_proc, v), v) }
     end
 
     def validate
@@ -53,7 +59,7 @@ module Results
     end
   end
 
-  Bad  = Struct.new(:error) do
+  Bad = Struct.new(:error, :input) do
     def when(msg_or_proc)
       self
     end

@@ -8,20 +8,22 @@ describe Results do
   ##
   describe '.new' do
 
-    context 'when block does *not* raise' do
-      subject { Results.new { 1 } }
-      it { is_expected.to eq Results::Good.new(1) }
-    end
-
-    context 'with defaults' do
-      context 'when block raises ArgumentError' do
-        subject { Results.new { Integer('abc') } }
-        it { is_expected.to be_a Results::Bad }
+    context 'with block' do
+      context 'when block does *not* raise' do
+        subject { Results.new(1) { |v| v } }
+        it { is_expected.to eq Results::Good.new(1) }
       end
 
-      context 'when block raises StandardError' do
-        subject { lambda { Results.new { raise StandardError.new('a message') } } }
-        it { is_expected.to raise_error(StandardError, 'a message') }
+      context 'with defaults' do
+        context 'when block raises ArgumentError' do
+          subject { Results.new('abc') { |v| Integer(v) } }
+          it { is_expected.to eq Results::Bad.new('invalid value for integer', 'abc') }
+        end
+
+        context 'when block raises StandardError' do
+          subject { lambda { Results.new('abc') { |v| raise StandardError.new(v) } } }
+          it { is_expected.to raise_error(StandardError, 'abc') }
+        end
       end
     end
 
@@ -34,14 +36,15 @@ describe Results do
 
     context 'when success' do
       let(:success) { Rescuer::Success.new(1) }
-      subject { Results.from_rescuer(success) }
+      subject { Results.from_rescuer(success, 1) }
       it { is_expected.to eq Results::Good.new(1) }
     end
 
     context 'when failure' do
+      let(:input) { 'abc' }
       let(:failure) { Rescuer::Failure.new(StandardError.new('failure message')) }
-      subject { Results.from_rescuer(failure) }
-      it { is_expected.to eq Results::Bad.new('failure message') }
+      subject { Results.from_rescuer(failure, input) }
+      it { is_expected.to eq Results::Bad.new('failure message', 'abc') }
     end
 
   end
@@ -54,12 +57,12 @@ describe Results do
     context 'with defaults' do
       context 'when argument error due to invalid integer' do
         subject { Results.transform_exception_message(begin; Integer('abc'); rescue => e; e; end) }
-        it { is_expected.to match /invalid (value|string) for integer(: "abc")?/ } # format varies on MRI, jruby, rbx
+        it { is_expected.to eq 'invalid value for integer' }
       end
 
       context 'when argument error due to invalid float' do
         subject { Results.transform_exception_message(begin; Float('abc'); rescue => e; e; end) }
-        it { is_expected.to match /invalid (value|string) for float(: "abc")?/ }   # format varies on MRI, jruby, rbx
+        it { is_expected.to eq 'invalid value for float' }
       end
     end
 
@@ -69,7 +72,8 @@ describe Results do
   # Construct directly as Good
   ##
   describe Results::Good do
-    let(:good) { Results::Good.new(1) }
+    let(:value) { 1 }
+    let(:good) { Results::Good.new(value) }
 
     describe '#when' do
       context 'with true predicate' do
@@ -77,14 +81,14 @@ describe Results do
         it { is_expected.to be good }
       end
 
-      context 'with false predicate and string error message' do
-        subject { good.when('predicate failed') { |_| false } }
-        it { is_expected.to eq Results::Bad.new('predicate failed') }
+      context 'with false predicate and string error message, prepends "not"' do
+        subject { good.when('true') { |_| false } }
+        it { is_expected.to eq Results::Bad.new('not true', value) }
       end
 
       context 'with false predicate and callable error message' do
-        subject { good.when(lambda { |v| "predicate failed for: #{v}" }) { |_| false } }
-        it { is_expected.to eq Results::Bad.new('predicate failed for: 1') }
+        subject { good.when(lambda { |v| "#{v} was not true" }) { |_| false } }
+        it { is_expected.to eq Results::Bad.new('1 was not true', value) }
       end
     end
 
@@ -94,14 +98,14 @@ describe Results do
         it { is_expected.to be good }
       end
 
-      context 'with true predicate and string error message, prepends "not"' do
-        subject { good.when_not('evaluated as false') { |_| true } }
-        it { is_expected.to eq Results::Bad.new('not evaluated as false') }
+      context 'with true predicate and string error message' do
+        subject { good.when_not('evaluated as true') { |_| true } }
+        it { is_expected.to eq Results::Bad.new('evaluated as true', value) }
       end
 
       context 'with failing predicate and callable error message' do
-        subject { good.when_not(lambda { |v| "was not false: #{v}" }) { |_| true } }
-        it { is_expected.to eq Results::Bad.new('was not false: 1') }
+        subject { good.when_not(lambda { |v| "#{v} evaluated as true" }) { |_| true } }
+        it { is_expected.to eq Results::Bad.new('1 evaluated as true', value) }
       end
     end
 
@@ -112,8 +116,8 @@ describe Results do
       end
 
       context 'with return of bad' do
-        subject { good.validate { |v| Results::Bad.new("no good: #{v}") } }
-        it { is_expected.to eq Results::Bad.new('no good: 1') }
+        subject { good.validate { |v| Results::Bad.new("no good: #{v}", v) } }
+        it { is_expected.to eq Results::Bad.new('no good: 1', value) }
       end
     end
 
@@ -123,7 +127,9 @@ describe Results do
   # Construct directly as Bad
   ##
   describe Results::Bad do
-    let(:bad) { Results::Bad.new('epic fail') }
+    let(:msg) { 'epic fail' }
+    let(:input) { 'abc' }
+    let(:bad) { Results::Bad.new(msg, input) }
 
     describe '#when' do
       context 'with any predicate' do
