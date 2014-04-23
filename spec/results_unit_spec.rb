@@ -8,48 +8,56 @@ describe Results do
   ##
   describe '.new' do
 
-    context 'with non-callable value' do
+    context 'with non-callable value and no block' do
       subject { Results.new(1) }
       it { is_expected.to eq Results::Good.new(1) }
     end
 
-    context 'with callable value' do
-      context 'when callable does *not* raise' do
-        subject { Results.new(lambda { 1 }) }
+    shared_examples 'exception handler' do
+      context 'when does *not* raise' do
+        subject { when_does_not_raise }
         it { is_expected.to eq Results::Good.new(1) }
       end
 
-      context 'with defaults' do
-        context 'when callable raises ArgumentError' do
-          let(:callable) { lambda { Integer('abc') } }
-          subject { Results.new(callable) }
-          it { is_expected.to eq Results::Bad.new('invalid value for integer', callable) }
-        end
+      context 'when *does* raise' do
+        let(:std_err) { StandardError.new('abc') }
 
-        context 'when callable raises StandardError' do
-          subject { lambda { Results.new(lambda { raise StandardError.new('abc') }) } }
-          it { is_expected.to raise_error(StandardError, 'abc') }
+        context 'with defaults' do
+          context 'when raises ArgumentError' do
+            subject { when_raises_arg_err }
+            it { is_expected.to eq Results::Bad.new('invalid value for integer', input_raises_arg_err) }
+          end
+
+          context 'when raises StandardError' do
+            subject { lambda { when_raises_std_err } }
+            it { is_expected.to raise_error(StandardError, 'abc') }
+          end
         end
       end
     end
 
+    context 'with callable value' do
+      let(:input_does_not_raise) { lambda { 1 } }
+      let(:input_raises_arg_err) { lambda { Integer('abc') } }
+      let(:input_raises_std_err) { lambda { raise std_err } }
+
+      let(:when_does_not_raise) { Results.new(input_does_not_raise) }
+      let(:when_raises_arg_err) { Results.new(input_raises_arg_err) }
+      let(:when_raises_std_err) { Results.new(input_raises_std_err) }
+
+      it_behaves_like 'exception handler'
+    end
+
     context 'with block' do
-      context 'when block does *not* raise' do
-        subject { Results.new(1) { |v| v } }
-        it { is_expected.to eq Results::Good.new(1) }
-      end
+      let(:input_does_not_raise) { 1 }
+      let(:input_raises_arg_err) { 'abc' }
+      let(:input_raises_std_err) { 'dummy' }
 
-      context 'with defaults' do
-        context 'when block raises ArgumentError' do
-          subject { Results.new('abc') { |v| Integer(v) } }
-          it { is_expected.to eq Results::Bad.new('invalid value for integer', 'abc') }
-        end
+      let(:when_does_not_raise) { Results.new(input_does_not_raise) { |v| v } }
+      let(:when_raises_arg_err) { Results.new(input_raises_arg_err) { |v| Integer(v) } }
+      let(:when_raises_std_err) { Results.new(input_raises_std_err) { |_| raise std_err } }
 
-        context 'when block raises StandardError' do
-          subject { lambda { Results.new('abc') { |v| raise StandardError.new(v) } } }
-          it { is_expected.to raise_error(StandardError, 'abc') }
-        end
-      end
+      it_behaves_like 'exception handler'
     end
 
   end
