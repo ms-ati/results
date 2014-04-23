@@ -4,7 +4,7 @@ require 'results'
 describe Results do
 
   ##
-  # Construct indirectly by wrapping a block which may raise an exception
+  # Construct indirectly with a value or block which may raise an exception
   ##
   describe '.new' do
 
@@ -83,7 +83,7 @@ describe Results do
   end
 
   ##
-  # Transform exception messages via to configured lambdas
+  # Transform exception message formatting via configured lambdas
   ##
   describe '.transform_exception_message' do
 
