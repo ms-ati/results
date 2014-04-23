@@ -11,6 +11,13 @@ A functional combinator of results which are either Good or Bad inspired by the 
 [1]: http://www.scalautils.org
 [2]: http://www.scalautils.org/user_guide/OrAndEvery
 
+## Table of Contents
+
+* [Usage](#usage)
+  * [Basic validation](#basic-validation)
+  * [Chained filters and validations](#chained-filters-and-validations)
+* [TODO](#todo) 
+
 ## Usage
 
 ### Basic validation
