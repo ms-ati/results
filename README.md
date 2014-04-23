@@ -30,7 +30,7 @@ parseAge('abc')
 #=> #<struct Results::Bad error="invalid value for integer", input="abc">
 ```
 
-### Chained Filters and Validations
+### Chained filters and validations
 
 Once you have a `Good` or `Bad`, you can chain additional boolean filters using `#when` and `#whenNot`.
 
