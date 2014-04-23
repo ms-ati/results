@@ -187,4 +187,46 @@ describe Results do
 
   end
 
+  ##
+  # Helper class Filter for use with #when and #when_not
+  ##
+  describe Results::Filter do
+
+    context 'with string message and block' do
+      let(:filter_under_45) { Results::Filter.new('under 45') { |v| v < 45 } }
+
+      context '#call when block returns false' do
+        subject { filter_under_45.call(45) }
+        it { is_expected.to be false }
+      end
+
+      context '#call when block returns true' do
+        subject { filter_under_45.call(44) }
+        it { is_expected.to be true }
+      end
+
+      context '#message' do
+        subject { filter_under_45.message }
+        it { is_expected.to eq 'under 45' }
+      end
+    end
+
+    context 'with callable message' do
+      let(:filter_callable_msg) { Results::Filter.new(lambda { |v| "value: #{v}" }) { |v| v } }
+      subject { filter_callable_msg.message.call(1) }
+      it { is_expected.to eq 'value: 1' }
+    end
+
+    context 'with nil message' do
+      subject { lambda { Results::Filter.new(nil) { |v| v } } }
+      it { is_expected.to raise_error(ArgumentError, 'invalid message') }
+    end
+
+    context 'with *no* block' do
+      subject { lambda { Results::Filter.new('dummy') } }
+      it { is_expected.to raise_error(ArgumentError, 'no block given') }
+    end
+
+  end
+
 end

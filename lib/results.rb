@@ -40,13 +40,49 @@ module Results
   end
   module_function :transform_exception_message
 
-  Good = Struct.new(:value) do
-    def when(msg_or_proc)
-      validate { |v| yield(v) ? self : Bad.new(yield_or_call(msg_or_proc, v) { |msg| 'not ' + msg }, v) }
+  class Filter
+    def initialize(msg_or_proc, &filter_block)
+      raise ArgumentError, 'invalid message' if msg_or_proc.nil?
+      raise ArgumentError, 'no block given' if filter_block.nil?
+      @msg_or_proc, @filter_block = msg_or_proc, filter_block
     end
 
-    def when_not(msg_or_proc)
-      validate { |v| !yield(v) ? self : Bad.new(yield_or_call(msg_or_proc, v), v) }
+    def call(value)
+      @filter_block.call(value)
+    end
+
+    def message
+      @msg_or_proc
+    end
+  end
+
+  Good = Struct.new(:value) do
+    def when(msg_or_proc_or_filter)
+      validate do |v|
+        predicate, msg_or_proc =
+          if msg_or_proc_or_filter.respond_to?(:call) &&
+             msg_or_proc_or_filter.respond_to?(:message)
+            [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
+          else
+            [yield(v), msg_or_proc_or_filter]
+          end
+
+        predicate ? self : Bad.new(yield_or_call(msg_or_proc, v) { |msg| 'not ' + msg }, v)
+      end
+    end
+
+    def when_not(msg_or_proc_or_filter)
+      validate do |v|
+        predicate, msg_or_proc =
+          if msg_or_proc_or_filter.respond_to?(:call) &&
+             msg_or_proc_or_filter.respond_to?(:message)
+            [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
+          else
+            [yield(v), msg_or_proc_or_filter]
+          end
+
+        !predicate ? self : Bad.new(yield_or_call(msg_or_proc, v), v)
+      end
     end
 
     def validate

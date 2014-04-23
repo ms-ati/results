@@ -31,6 +31,10 @@ describe 'Example usages' do
     _ = b.when_not('under 21') { |v| v < 21 }
   end
 
+  under_45 = Results::Filter.new('under 45') { |v| v < 45 }
+
+  under_21 = lambda { |v| v < 21 }.tap { |l| l.define_singleton_method(:message) { 'under 21' } }
+
   def parseAgeRange(str)
     parseAge(str).validate do |v|
       case v
@@ -65,6 +69,16 @@ describe 'Example usages' do
     context 'parseAgeRange("65")' do
       subject { parseAgeRange('65').inspect }
       it { is_expected.to eq '#<struct Results::Bad error="not between 21 and 45", input=65>' }
+    end
+
+    context 'parseAge("65").when(under_45).when_not(under_21)' do
+      subject { parseAge('65').when(under_45).when_not(under_21).inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="not under 45", input=65>' }
+    end
+
+    context 'parseAge("16").when(under_45).when_not(under_21)' do
+      subject { parseAge('16').when(under_45).when_not(under_21).inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="under 21", input=16>' }
     end
 
   end

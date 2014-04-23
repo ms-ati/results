@@ -36,7 +36,7 @@ Once you have a `Good` or `Bad`, you can chain additional boolean filters using 
 
 ```ruby
 def parseAge21To45(str)
-  # Syntax workaround due to lack of support for chaining on blocks
+  # Syntax workaround due to lack of support for chaining on blocks - Open to suggestions!
   a = parseAge(str)
   b = a.when    ('under 45') { |v| v < 45 }
   _ = b.when_not('under 21') { |v| v < 21 }
@@ -52,7 +52,21 @@ parseAge21To45('1')
 #=> #<struct Results::Bad error="under 21", input=1>
 ```
 
-Or you can chain validation functions (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
+You can combine the description and the predicate into an object which responds to `#call` and `message`.
+
+```ruby
+# You can use the provided class Filter
+under_45 = Results::Filter.new('under 45') { |v| v < 45 }
+
+# ...or do something funky
+under_21 = lambda { |v| v < 21 }.tap { |l| l.define_singleton_method(:message) { 'under 21' } }
+
+# Both work the same
+parseAge('65').when(under_45).when_not(under_21)
+#=> #<struct Results::Bad error="not under 45", input=65>
+```
+
+You can also chain validation functions (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
 
 ```ruby
 def parseAgeRange(str)
