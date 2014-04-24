@@ -5,11 +5,15 @@
 [![Code Climate](https://codeclimate.com/github/ms-ati/results.png)](https://codeclimate.com/github/ms-ati/results)
 [![Coverage Status](https://coveralls.io/repos/ms-ati/results/badge.png)](https://coveralls.io/r/ms-ati/results)
 
-A functional combinator of results which are either Good or Bad inspired by the [ScalaUtils][1] library's
-[Or and Every][2] classes.
+A functional combinator of results which are either {Results::Good Good} or {Results::Bad Bad}.
+
+Inspired by the [ScalaUtils][1] library's [Or and Every][2] classes, whose APIs are documented
+[here (Or)][3] and [here (Every)][4].
 
 [1]: http://www.scalautils.org
 [2]: http://www.scalautils.org/user_guide/OrAndEvery
+[3]: http://doc.scalatest.org/2.1.3/index.html#org.scalautils.Or
+[4]: http://doc.scalatest.org/2.1.3/index.html#org.scalautils.Every
 
 ## Table of Contents
 
@@ -18,7 +22,7 @@ A functional combinator of results which are either Good or Bad inspired by the 
   * [Chained filters and validations](#chained-filters-and-validations)
   * [Accumulating multiple bad results](#accumulating-multiple-bad-results)
     * [Multiple filters and validations of a single input](#multiple-filters-and-validations-of-a-single-input)
-* [TODO](#todo) 
+* [TODO](#todo)
 
 ## Usage
 
