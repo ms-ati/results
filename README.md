@@ -8,7 +8,7 @@
 A functional combinator of results which are either {Results::Good Good} or {Results::Bad Bad}.
 
 Inspired by the [ScalaUtils][1] library's [Or and Every][2] classes, whose APIs are documented
-[here][3] (Or) and [here][4] (Every).
+[here][3] and [here][4].
 
 [1]: http://www.scalautils.org
 [2]: http://www.scalautils.org/user_guide/OrAndEvery
@@ -164,12 +164,32 @@ together, if more than one would fail for some input, you would only see the fir
 
 Now, instead, we're going to accumulate all the failures for a single input.
 
-One way to do this is to intersperse the `#and` method between your chained `#when` calls.
+One simple way is to intersperse the `#and` method between your chained `#when` calls.
 
 ```ruby
+# Good still works as before
+Results.new(0).when(:integer?).and.when(:zero?)
+#=> #<struct Results::Good value=0>
+
+# Bad accumulates multiple failures
 Results.new(1.23).when(:integer?).and.when(:zero?)
-#=> #<struct Results::Bad::Multi errors=["not integer", "not zero"], input=1.23>
+#=> #<struct Results::Multiple bads=[
+  #<struct Results::Bad error="not integer", input=1.23>,
+  #<struct Results::Bad error="not zero", input=1.23>]>
 ```
+
+You can also call `#when_all` with a list of filters.
+
+```ruby
+filters = [:integer?, :zero?, Filter.new('greater than 2') { |n| n > 2 }]
+r = Results.new(1.23).when_all(filters)
+#=> #<struct Results::Multiple bads=[
+  #<struct Results::Bad error="not integer", input=1.23>,
+  #<struct Results::Bad error="not zero", input=1.23>,
+  #<struct Results::Bad error="not greater than 2", input=1.23>]>
+```
+
+#### Combine results of multiple inputs
 
 NOTE: this section is under construction, and is not implemented yet...
 
