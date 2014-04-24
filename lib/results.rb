@@ -36,6 +36,16 @@ module Results
   end
   module_function :transform_exception_message
 
+  def when(*args)
+    lambda { |v| Results.new(v).when(*args) }
+  end
+  module_function :when
+
+  def when_not(*args)
+    lambda { |v| Results.new(v).when_not(*args) }
+  end
+  module_function :when_not
+
   class Filter
     def initialize(msg_or_proc, &filter_block)
       raise ArgumentError, 'invalid message' if msg_or_proc.nil?

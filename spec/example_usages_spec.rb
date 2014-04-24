@@ -86,6 +86,11 @@ describe 'Example usages' do
       it { is_expected.to eq '#<struct Results::Bad error="65 is not under 45", input=65>' }
     end
 
+    context 'Results.when_not(under_21).call(16)' do
+      subject { Results.when_not(under_21).call(16).inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="under 21", input=16>' }
+    end
+
   end
 
 end

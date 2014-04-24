@@ -83,6 +83,64 @@ describe Results do
   end
 
   ##
+  # Make a validation function from a filter using .when
+  ##
+  describe '.when' do
+
+    shared_examples 'validation from a filter' do
+      context 'when passes' do
+        subject { Results.when(is_zero).call(0) }
+        it { is_expected.to eq Results::Good.new(0) }
+      end
+
+      context 'when fails' do
+        subject { Results.when(is_zero).call(1) }
+        it { is_expected.to eq Results::Bad.new('not zero', 1) }
+      end
+    end
+
+    context 'when instance of Results::Filter' do
+      let(:is_zero) { Results::Filter.new('zero') { |n| n.zero? } }
+      it_behaves_like 'validation from a filter'
+    end
+
+    context 'when a duck-type of #call and #message' do
+      let(:is_zero) { lambda { |n| n.zero? }.tap { |l| l.define_singleton_method(:message) { 'zero' } } }
+      it_behaves_like 'validation from a filter'
+    end
+
+  end
+
+  ##
+  # Make a validation function from a filter using .when_not
+  ##
+  describe '.when_not' do
+
+    shared_examples 'validation from a filter' do
+      context 'when passes' do
+        subject { Results.when_not(is_zero).call(1) }
+        it { is_expected.to eq Results::Good.new(1) }
+      end
+
+      context 'when fails' do
+        subject { Results.when_not(is_zero).call(0) }
+        it { is_expected.to eq Results::Bad.new('zero', 0) }
+      end
+    end
+
+    context 'when instance of Results::Filter' do
+      let(:is_zero) { Results::Filter.new('zero') { |n| n.zero? } }
+      it_behaves_like 'validation from a filter'
+    end
+
+    context 'when a duck-type of #call and #message' do
+      let(:is_zero) { lambda { |n| n.zero? }.tap { |l| l.define_singleton_method(:message) { 'zero' } } }
+      it_behaves_like 'validation from a filter'
+    end
+
+  end
+
+  ##
   # Transform exception message formatting via configured lambdas
   ##
   describe '.transform_exception_message' do

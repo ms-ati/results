@@ -39,7 +39,7 @@ parseAge('abc')
 
 ### Chained filters and validations
 
-Once you have a `Good` or `Bad`, you can chain additional boolean filters using `#when` and `#whenNot`.
+Once you have a `Good` or `Bad`, you can chain additional boolean filters using `#when` and `#when_not`.
 
 ```ruby
 def parseAge21To45(str)
@@ -92,12 +92,21 @@ parseAgeRange('65')
 #=> #<struct Results::Bad error="not between 21 and 45", input=65>
 ```
 
-For convenience, the `#when` and `#whenNot` methods can also accept a lambda for
+For convenience, the `#when` and `#when_not` methods can also accept a lambda for
 the error message, to format the error message based on the input value.
 
 ```ruby
 parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }
 #=> #<struct Results::Bad error="65 is not under 45", input=65>
+```
+
+Finally, if you already have a `Filter` or compatible duck-type (see above),
+it's easy turn it into a basic validation function returning `Good` or `Bad`
+using `Results.when` and `Results.when_not`.
+
+```ruby
+Results.when_not(under_21).call(16)
+#=> #<struct Results::Bad error="under 21", input=16>
 ```
 
 More coming soon...
