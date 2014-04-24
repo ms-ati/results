@@ -115,9 +115,9 @@ describe 'Example usages' do
       it { is_expected.to eq '#<struct Results::Bad error="empty", input="">' }
     end
 
-    context 'valid?("abc\u{6666}")' do
-      subject { valid?("abc\u{6666}").inspect }
-      it { is_expected.to eq "#<struct Results::Bad error=\"not ascii_only\", input=\"abc\u{6666}\">" }
+    context 'valid?("\xE6\x99\xA6")' do
+      subject { valid?("\xE6\x99\xA6".force_encoding('UTF-16')).inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="not ascii_only", input="\xE6\x99\xA6">' }
     end
 
     context 'valid_short?(nil)' do
