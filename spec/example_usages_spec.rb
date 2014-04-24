@@ -81,6 +81,11 @@ describe 'Example usages' do
       it { is_expected.to eq '#<struct Results::Bad error="under 21", input=16>' }
     end
 
+    context 'parseAge("65").when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }' do
+      subject { parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }.inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="65 is not under 45", input=65>' }
+    end
+
   end
 
 end

@@ -23,7 +23,7 @@ A functional combinator of results which are either Good or Bad inspired by the 
 ### Basic validation
 
 By default, `Results` will transform an `ArgumentError` into a `Bad`, allowing built-in
-numeric conversion to work directly as a validator.
+numeric conversions to work directly as validations.
 
 ```ruby
 def parseAge(str)
@@ -92,8 +92,13 @@ parseAgeRange('65')
 #=> #<struct Results::Bad error="not between 21 and 45", input=65>
 ```
 
-For convenience, the `#when` and `#whenNot` methods also accept a lambda for
-the error message, in case you want to format the error message based on the value provided.
+For convenience, the `#when` and `#whenNot` methods can also accept a lambda for
+the error message, to format the error message based on the input value.
+
+```ruby
+parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }
+#=> #<struct Results::Bad error="65 is not under 45", input=65>
+```
 
 More coming soon...
 
