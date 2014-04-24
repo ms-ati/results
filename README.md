@@ -8,7 +8,7 @@
 A functional combinator of results which are either {Results::Good Good} or {Results::Bad Bad}.
 
 Inspired by the [ScalaUtils][1] library's [Or and Every][2] classes, whose APIs are documented
-[here (Or)][3] and [here (Every)][4].
+[here][3] (Or) and [here][4] (Every).
 
 [1]: http://www.scalautils.org
 [2]: http://www.scalautils.org/user_guide/OrAndEvery
