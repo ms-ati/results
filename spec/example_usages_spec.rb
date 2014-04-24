@@ -121,7 +121,16 @@ describe 'Example usages' do
   end
 
   describe 'Accumulating multiple bad results' do
-    # TODO: Define this API
+
+    describe 'Multiple filters and validations of a single input' do
+
+      context 'Results.new(1.23).when(:integer?).and.when(:zero?)', :pending => 'support #and' do
+        subject { Results.new(1.23).when(:integer?).and.when(:zero?).inspect }
+        it { is_expected.to eq '#<struct Results::Bad::Multi errors=["not integer", "not zero"], input=1.23>' }
+      end
+
+    end
+
   end
 
 end

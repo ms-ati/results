@@ -17,7 +17,7 @@ A functional combinator of results which are either Good or Bad inspired by the 
   * [Basic validation](#basic-validation)
   * [Chained filters and validations](#chained-filters-and-validations)
   * [Accumulating multiple bad results](#accumulating-multiple-bad-results)
-    * [Multiple filters and validations](#multiple-filters-and-validations)
+    * [Multiple filters and validations of a single input](#multiple-filters-and-validations-of-a-single-input)
 * [TODO](#todo) 
 
 ## Usage
@@ -152,13 +152,13 @@ end
 So, now the interesting parts (Yes, the earlier sections were a bit slow,
 but it picks up a bit here):
 
-#### Multiple filters and validations
+#### Multiple filters and validations of a single input
 
 The way we've done things so far, even if you chained multiple filters and validations
 together, if more than one would fail for some input, you would only see the first
 `Bad`, and none of the the later filters would be run.
 
-Instead, we'd like to accumulate all the failures.
+Now, instead, we're going to accumulate all the failures for a single input.
 
 One way to do this is to intersperse the `#and` method between your chained `#when` calls.
 
