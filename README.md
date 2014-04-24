@@ -101,16 +101,51 @@ parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }
 #=> #<struct Results::Bad error="65 is not under 45", input=65>
 ```
 
-Finally, if you already have a `Filter` or compatible duck-typed object (see above),
-it's easy to turn it into a basic validation function returning `Good` or `Bad`
-via convenience functions `Results.when` and `Results.when_not`.
+In a similar vein, if you already have a `Filter` or compatible duck-type
+(see above), it's easy turn it into a basic validation function returning
+`Good` or `Bad` via convenience functions `Results.when` and `Results.when_not`.
 
 ```ruby
 Results.when_not(under_21).call(16)
 #=> #<struct Results::Bad error="under 21", input=16>
 ```
 
-More coming soon...
+Note that this is equivalent to:
+
+```ruby
+Results.new(16).when_not(under_21)
+```
+
+The benefit of `Results.when` is for cases where the value (here, 16) is not yet known.
+
+Experience has shown that many filters that are written are simply
+predicates called on value objects, such as `Numeric#zero?` or `String#empty?` or
+even `Object#nil?`.
+
+For these cases, you can use the convenience function `Results.predicate`.
+
+```ruby
+# validates non-nil, non-empty, and only ascii
+def valid?(str)
+  Results.new(str)
+    .when_not(Results.predicate :nil?)
+    .when_not(Results.predicate :empty?)
+    .when    (Results.predicate :ascii_only?)
+end
+```
+
+In fact it's even simpler, as the right thing will happen if you pass the symbol of
+the predicate name directly to `#when` or `#when_not`.
+
+```ruby
+# same as above
+def valid_short?(str)
+  Results.new(str)
+    .when_not :nil?
+    .when_not :empty?
+    .when     :ascii_only?
+end
+```
 
 ## TODO
 

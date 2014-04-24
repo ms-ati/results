@@ -141,6 +141,26 @@ describe Results do
   end
 
   ##
+  # Make a filter from the symbol name of a predicate method using .predicate
+  ##
+  describe '.predicate' do
+    context 'when symbol ends in ?, message strips the ?' do
+      subject { Results.predicate(:zero?).message }
+      it { is_expected.to eq 'zero' }
+    end
+
+    context 'when passes' do
+      subject { Results.predicate(:zero?).call(0) }
+      it { is_expected.to eq true }
+    end
+
+    context 'when fails' do
+      subject { Results.predicate(:zero?).call(1) }
+      it { is_expected.to eq false }
+    end
+  end
+
+  ##
   # Transform exception message formatting via configured lambdas
   ##
   describe '.transform_exception_message' do
@@ -181,6 +201,16 @@ describe Results do
         subject { good.when(lambda { |v| "#{v} was not true" }) { |_| false } }
         it { is_expected.to eq Results::Bad.new('1 was not true', value) }
       end
+
+      context 'with true predicate given by name' do
+        subject { good.when(:nonzero?) }
+        it { is_expected.to be good }
+      end
+
+      context 'with false predicate given by name' do
+        subject { good.when(:zero?) }
+        it { is_expected.to eq Results::Bad.new('not zero', value) }
+      end
     end
 
     describe '#when_not' do
@@ -197,6 +227,16 @@ describe Results do
       context 'with failing predicate and callable error message' do
         subject { good.when_not(lambda { |v| "#{v} evaluated as true" }) { |_| true } }
         it { is_expected.to eq Results::Bad.new('1 evaluated as true', value) }
+      end
+
+      context 'with true predicate given by name' do
+        subject { good.when_not(:nonzero?) }
+        it { is_expected.to eq Results::Bad.new('nonzero', value) }
+      end
+
+      context 'with false predicate given by name' do
+        subject { good.when_not(:zero?) }
+        it { is_expected.to be good }
       end
     end
 

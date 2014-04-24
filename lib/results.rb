@@ -46,6 +46,11 @@ module Results
   end
   module_function :when_not
 
+  def predicate(method_name)
+    Filter.new(method_name.to_s.gsub(/\?\Z/, '')) { |v| v.send(method_name) }
+  end
+  module_function :predicate
+
   class Filter
     def initialize(msg_or_proc, &filter_block)
       raise ArgumentError, 'invalid message' if msg_or_proc.nil?
@@ -84,7 +89,10 @@ module Results
     private
 
     def extract_predicate_and_message(msg_or_proc_or_filter, v)
-      if msg_or_proc_or_filter.respond_to?(:call) && msg_or_proc_or_filter.respond_to?(:message)
+      if msg_or_proc_or_filter.is_a? Symbol
+        p = Results.predicate(msg_or_proc_or_filter)
+        [p.call(v), p.message]
+      elsif msg_or_proc_or_filter.respond_to?(:call) && msg_or_proc_or_filter.respond_to?(:message)
         [msg_or_proc_or_filter.call(v), msg_or_proc_or_filter.message]
       else
         [yield, msg_or_proc_or_filter]

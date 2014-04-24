@@ -44,6 +44,20 @@ describe 'Example usages' do
     end
   end
 
+  def valid?(str)
+    Results.new(str)
+      .when_not(Results.predicate :nil?)
+      .when_not(Results.predicate :empty?)
+      .when    (Results.predicate :ascii_only?)
+  end
+
+  def valid_short?(str)
+    Results.new(str)
+      .when_not(:nil?)
+      .when_not(:empty?)
+      .when    (:ascii_only?)
+  end
+
   describe 'Chained filters and validations' do
 
     context 'parseAge21To45("29")' do
@@ -89,6 +103,26 @@ describe 'Example usages' do
     context 'Results.when_not(under_21).call(16)' do
       subject { Results.when_not(under_21).call(16).inspect }
       it { is_expected.to eq '#<struct Results::Bad error="under 21", input=16>' }
+    end
+
+    context 'valid?(nil)' do
+      subject { valid?(nil).inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="nil", input=nil>' }
+    end
+
+    context 'valid?("")' do
+      subject { valid?('').inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="empty", input="">' }
+    end
+
+    context 'valid?("abc\u{6666}")' do
+      subject { valid?("abc\u{6666}").inspect }
+      it { is_expected.to eq "#<struct Results::Bad error=\"not ascii_only\", input=\"abc\u{6666}\">" }
+    end
+
+    context 'valid_short?(nil)' do
+      subject { valid_short?(nil).inspect }
+      it { is_expected.to eq '#<struct Results::Bad error="nil", input=nil>' }
     end
 
   end
