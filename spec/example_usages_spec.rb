@@ -127,4 +127,8 @@ describe 'Example usages' do
 
   end
 
+  describe 'Accumulating multiple bad results' do
+    # TODO: Define this API
+  end
+
 end

@@ -16,6 +16,8 @@ A functional combinator of results which are either Good or Bad inspired by the 
 * [Usage](#usage)
   * [Basic validation](#basic-validation)
   * [Chained filters and validations](#chained-filters-and-validations)
+  * [Accumulating multiple bad results](#accumulating-multiple-bad-results)
+    * [Multiple filters and validations](#multiple-filters-and-validations)
 * [TODO](#todo) 
 
 ## Usage
@@ -146,6 +148,28 @@ def valid_short?(str)
     .when    (:ascii_only?)
 end
 ```
+
+### Accumulating multiple bad results
+
+So, now the interesting parts (Yes, the earlier sections were a bit slow,
+but it picks up a bit here):
+
+#### Multiple filters and validations
+
+The way we've done things so far, even if you chained multiple filters and validations
+together, if more than one would fail for some input, you would only see the first
+`Bad`, and none of the the later filters would be run.
+
+Instead, we'd like to accumulate all the failures.
+
+One way to do this is to intersperse the `#and` method between your chained `#when` calls.
+
+```ruby
+Results.new(1.23).when(:integer?).and.when(:zero?)
+#=> #<struct Results::Bad::Multi errors=["not integer", "not zero"], input=1.23>
+```
+
+NOTE: this section is under construction, and is not implemented yet...
 
 ## TODO
 
