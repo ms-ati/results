@@ -59,7 +59,8 @@ parseAge21To45('1')
 #=> #<struct Results::Bad error="under 21", input=1>
 ```
 
-You can combine the description and the predicate into an object which responds to `#call` and `message`.
+Want to save your favorite filters? You can use the provided class `Filter`,
+or any object with the same duck-type, meaning it responds to `#call` and `#message`.
 
 ```ruby
 # You can use the provided class Filter
@@ -100,9 +101,9 @@ parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }
 #=> #<struct Results::Bad error="65 is not under 45", input=65>
 ```
 
-Finally, if you already have a `Filter` or compatible duck-type (see above),
-it's easy turn it into a basic validation function returning `Good` or `Bad`
-using `Results.when` and `Results.when_not`.
+Finally, if you already have a `Filter` or compatible duck-typed object (see above),
+it's easy to turn it into a basic validation function returning `Good` or `Bad`
+via convenience functions `Results.when` and `Results.when_not`.
 
 ```ruby
 Results.when_not(under_21).call(16)
