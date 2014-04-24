@@ -65,10 +65,10 @@ You can combine the description and the predicate into an object which responds 
 # You can use the provided class Filter
 under_45 = Results::Filter.new('under 45') { |v| v < 45 }
 
-# ...or do something funky
+# ...or do something funky like this...
 under_21 = lambda { |v| v < 21 }.tap { |l| l.define_singleton_method(:message) { 'under 21' } }
 
-# Both work the same
+# Both work the same way
 parseAge('65').when(under_45).when_not(under_21)
 #=> #<struct Results::Bad error="not under 45", input=65>
 ```
