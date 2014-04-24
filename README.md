@@ -141,9 +141,9 @@ the predicate name directly to `#when` or `#when_not`.
 # same as above
 def valid_short?(str)
   Results.new(str)
-    .when_not :nil?
-    .when_not :empty?
-    .when     :ascii_only?
+    .when_not(:nil?)
+    .when_not(:empty?)
+    .when    (:ascii_only?)
 end
 ```
 
