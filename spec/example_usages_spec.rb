@@ -48,14 +48,12 @@ describe 'Example usages' do
     Results.new(str)
       .when_not(Results.predicate :nil?)
       .when_not(Results.predicate :empty?)
-      .when    (Results.predicate :ascii_only?)
   end
 
   def valid_short?(str)
     Results.new(str)
       .when_not(:nil?)
       .when_not(:empty?)
-      .when    (:ascii_only?)
   end
 
   describe 'Chained filters and validations' do
@@ -113,11 +111,6 @@ describe 'Example usages' do
     context 'valid?("")' do
       subject { valid?('').inspect }
       it { is_expected.to eq '#<struct Results::Bad error="empty", input="">' }
-    end
-
-    context 'valid?("\xE6\x99\xA6")' do
-      subject { valid?("\xE6\x99\xA6".force_encoding('UTF-16')).inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="not ascii_only", input="\xE6\x99\xA6">' }
     end
 
     context 'valid_short?(nil)' do

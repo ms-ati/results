@@ -127,12 +127,11 @@ even `Object#nil?`.
 For these cases, you can use the convenience function `Results.predicate`.
 
 ```ruby
-# validates non-nil, non-empty, and only ascii
+# validates non-nil, non-empty
 def valid?(str)
   Results.new(str)
     .when_not(Results.predicate :nil?)
     .when_not(Results.predicate :empty?)
-    .when    (Results.predicate :ascii_only?)
 end
 ```
 
@@ -145,7 +144,6 @@ def valid_short?(str)
   Results.new(str)
     .when_not(:nil?)
     .when_not(:empty?)
-    .when    (:ascii_only?)
 end
 ```
 
