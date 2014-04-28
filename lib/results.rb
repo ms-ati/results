@@ -101,7 +101,12 @@ module Results
 
   end
 
-  Bad = Struct.new(:error, :input) do
+  Bad = Struct.new(:why) do
+    def initialize(*args)
+      flat_args = args.flatten
+      super( flat_args.all? { |a| a.is_a? Because } ? flat_args : [Because.new(*flat_args)] )
+    end
+
     def when(msg_or_proc)
       self
     end
@@ -114,6 +119,8 @@ module Results
       self
     end
   end
+
+  Because = Struct.new(:error, :input)
 
   # Helper which will call its argument, or yield it to a block, or simply return it,
   #   depending on what is possible with the given input

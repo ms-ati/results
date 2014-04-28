@@ -19,7 +19,7 @@ describe 'Example usages' do
 
     context 'parseAge("abc")' do
       subject { parseAge('abc').inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="invalid value for integer", input="abc">' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="invalid value for integer", input="abc">]>' }
     end
 
   end
@@ -65,12 +65,12 @@ describe 'Example usages' do
 
     context 'parseAge21To45("65")' do
       subject { parseAge21To45('65').inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="not under 45", input=65>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>' }
     end
 
     context 'parseAge21To45("1")' do
       subject { parseAge21To45('1').inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="under 21", input=1>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="under 21", input=1>]>' }
     end
 
     context 'parseAgeRange("29")' do
@@ -80,42 +80,42 @@ describe 'Example usages' do
 
     context 'parseAgeRange("65")' do
       subject { parseAgeRange('65').inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="not between 21 and 45", input=65>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not between 21 and 45", input=65>]>' }
     end
 
     context 'parseAge("65").when(under_45).when_not(under_21)' do
       subject { parseAge('65').when(under_45).when_not(under_21).inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="not under 45", input=65>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>' }
     end
 
     context 'parseAge("16").when(under_45).when_not(under_21)' do
       subject { parseAge('16').when(under_45).when_not(under_21).inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="under 21", input=16>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>' }
     end
 
     context 'parseAge("65").when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }' do
       subject { parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }.inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="65 is not under 45", input=65>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="65 is not under 45", input=65>]>' }
     end
 
     context 'Results.when_not(under_21).call(16)' do
       subject { Results.when_not(under_21).call(16).inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="under 21", input=16>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>' }
     end
 
     context 'valid?(nil)' do
       subject { valid?(nil).inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="nil", input=nil>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="nil", input=nil>]>' }
     end
 
     context 'valid?("")' do
       subject { valid?('').inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="empty", input="">' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="empty", input="">]>' }
     end
 
     context 'valid_short?(nil)' do
       subject { valid_short?(nil).inspect }
-      it { is_expected.to eq '#<struct Results::Bad error="nil", input=nil>' }
+      it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="nil", input=nil>]>' }
     end
 
   end
@@ -126,7 +126,8 @@ describe 'Example usages' do
 
       context 'Results.new(1.23).when(:integer?).and.when(:zero?)', :pending => 'support #and' do
         subject { Results.new(1.23).when(:integer?).and.when(:zero?).inspect }
-        it { is_expected.to eq '#<struct Results::Bad::Multi errors=["not integer", "not zero"], input=1.23>' }
+        it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not integer", input=1.23>,' +
+                                                          '#<struct Results::Because error="not zero", input=1.23>]>' }
       end
 
     end

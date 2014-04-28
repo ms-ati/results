@@ -40,7 +40,7 @@ parseAge('1')
 #=> #<struct Results::Good value=1>
 
 parseAge('abc')
-#=> #<struct Results::Bad error="invalid value for integer", input="abc">
+#=> #<struct Results::Bad why=[#<struct Results::Because error="invalid value for integer", input="abc">]>
 ```
 
 ### Chained filters and validations
@@ -59,10 +59,10 @@ parseAge21To45('29')
 #=> #<struct Results::Good value=29>
 
 parseAge21To45('65')
-#=> #<struct Results::Bad error="not under 45", input=65>
+#=> #<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>
 
 parseAge21To45('1')
-#=> #<struct Results::Bad error="under 21", input=1>
+#=> #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=1>]>
 ```
 
 Want to save your favorite filters? You can use the provided class `Filter`,
@@ -77,7 +77,7 @@ under_21 = lambda { |v| v < 21 }.tap { |l| l.define_singleton_method(:message) {
 
 # Both work the same way
 parseAge('65').when(under_45).when_not(under_21)
-#=> #<struct Results::Bad error="not under 45", input=65>
+#=> #<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>
 ```
 
 You can also chain validation functions (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
@@ -96,7 +96,7 @@ parseAgeRange('29')
 #=> #<struct Results::Good value=29>
 
 parseAgeRange('65')
-#=> #<struct Results::Bad error="not between 21 and 45", input=65>
+#=> #<struct Results::Bad why=[#<struct Results::Because error="not between 21 and 45", input=65>]>
 ```
 
 For convenience, the `#when` and `#when_not` methods can also accept a lambda for
@@ -104,7 +104,7 @@ the error message, to format the error message based on the input value.
 
 ```ruby
 parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }
-#=> #<struct Results::Bad error="65 is not under 45", input=65>
+#=> #<struct Results::Bad why=[#<struct Results::Because error="65 is not under 45", input=65>]>
 ```
 
 In a similar vein, if you already have a `Filter` or compatible duck-type
@@ -113,7 +113,7 @@ In a similar vein, if you already have a `Filter` or compatible duck-type
 
 ```ruby
 Results.when_not(under_21).call(16)
-#=> #<struct Results::Bad error="under 21", input=16>
+#=> #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>
 ```
 
 Note that this is equivalent to:
@@ -173,9 +173,9 @@ Results.new(0).when(:integer?).and.when(:zero?)
 
 # Bad accumulates multiple failures
 Results.new(1.23).when(:integer?).and.when(:zero?)
-#=> #<struct Results::Multiple bads=[
-  #<struct Results::Bad error="not integer", input=1.23>,
-  #<struct Results::Bad error="not zero", input=1.23>]>
+#=> #<struct Results::Bad why=[
+  #<struct Results::Because error="not integer", input=1.23>,
+  #<struct Results::Because error="not zero",    input=1.23>]>
 ```
 
 You can also call `#when_all` with a list of filters.
@@ -183,7 +183,7 @@ You can also call `#when_all` with a list of filters.
 ```ruby
 filters = [:integer?, :zero?, Filter.new('greater than 2') { |n| n > 2 }]
 r = Results.new(1.23).when_all(filters)
-#=> #<struct Results::Multiple bads=[
+#=> #<struct Results::Bad why=[
   #<struct Results::Bad error="not integer", input=1.23>,
   #<struct Results::Bad error="not zero", input=1.23>,
   #<struct Results::Bad error="not greater than 2", input=1.23>]>
