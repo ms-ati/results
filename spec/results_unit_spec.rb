@@ -322,6 +322,19 @@ describe Results do
         end
       end
     end
+
+    describe '#zip' do
+      context 'when other is good' do
+        subject { good.zip(good) }
+        it { is_expected.to eq Results::Good.new([value, value]) }
+      end
+
+      context 'when other is bad' do
+        let(:bad) { Results::Bad.new('not ok', value) }
+        subject { good.zip(bad) }
+        it { is_expected.to be bad }
+      end
+    end
   end
 
   ##
@@ -348,7 +361,7 @@ describe Results do
 
     describe '#validate' do
       context 'with any function' do
-        subject { bad.validate { |_| Result::Good.new(2) } }
+        subject { bad.validate { |_| Results::Good.new(2) } }
         it { is_expected.to be bad }
       end
     end
@@ -446,6 +459,18 @@ describe Results do
           subject { bad.when_all_not(*filters_false) }
           it { is_expected.to be bad }
         end
+      end
+    end
+
+    describe '#zip' do
+      context 'when other is good' do
+        subject { bad.zip(Results::Good.new(2)) }
+        it { is_expected.to be bad }
+      end
+
+      context 'when other is bad' do
+        subject { bad.zip(bad) }
+        it { is_expected.to eq Results::Bad.new(bad.why + bad.why) }
       end
     end
   end

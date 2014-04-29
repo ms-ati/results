@@ -98,6 +98,13 @@ module Results
       filters.flatten.inject(self) { |prev_result, filter| prev_result.and.when_not(filter) }
     end
 
+    def zip(other)
+      case other
+      when Good then Good.new([value, other.value])
+      when Bad  then other
+      end
+    end
+
     private
 
     def extract_predicate_and_message(msg_or_proc_or_filter, v)
@@ -165,6 +172,13 @@ module Results
 
     def when_all_not(*filters)
       filters.flatten.inject(self) { |prev_result, filter| prev_result.and.when_not(filter) }
+    end
+
+    def zip(other)
+      case other
+      when Good then self
+      when Bad  then Bad.new(why + other.why)
+      end
     end
   end
 

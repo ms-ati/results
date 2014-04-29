@@ -22,6 +22,7 @@ Inspired by the [ScalaUtils][1] library's [Or and Every][2] classes, whose APIs 
   * [Chained filters and validations](#chained-filters-and-validations)
   * [Accumulating multiple bad results](#accumulating-multiple-bad-results)
     * [Multiple filters and validations of a single input](#multiple-filters-and-validations-of-a-single-input)
+    * [Combine results of multiple inputs](#combine-results-of-multiple-inputs)
 * [TODO](#todo)
 
 ## Usage
@@ -178,7 +179,7 @@ Results.new(1.23).when(:integer?).and.when(:zero?)
   #<struct Results::Because error="not zero", input=1.23>]>
 ```
 
-You can also call `#when_all` and `#when_all_not` with a list of filters.
+You can also call `#when_all` and`#when_all_not` with a collection of filters.
 
 ```ruby
 filters = [:integer?, :zero?, Results::Filter.new('greater than 2') { |n| n > 2 }]
@@ -191,7 +192,25 @@ r = Results.new(1.23).when_all(filters)
 
 #### Combine results of multiple inputs
 
-NOTE: this section is under construction, and is not implemented yet...
+If you have two results, the simplest way to combine is with `#zip`. If both results
+are `Good`, it returns a `Good` containing an array of both values. If any results
+are `Bad`, it returns a `Bad` containing all failures.
+
+```ruby
+good = Results::Good.new(1)
+bad1 = Results::Bad.new('not nonzero', 0)
+bad2 = Results::Bad.new('not integer', 1.23)
+
+good.zip(good)
+#=> #<struct Results::Good value=[1, 1]>
+
+good.zip(bad1).zip(bad2)
+#=> #<struct Results::Bad why=[
+  #<struct Results::Because error="not nonzero", input=0>,
+  #<struct Results::Because error="not integer", input=1.23>]>
+```
+
+NOTE: this section is under construction...
 
 ## TODO
 

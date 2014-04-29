@@ -141,6 +141,24 @@ describe 'Example usages' do
 
     end
 
+    describe 'Combine results of multiple inputs' do
+      let(:good) { Results::Good.new(1) }
+      let(:bad1) { Results::Bad.new('not nonzero', 0) }
+      let(:bad2) { Results::Bad.new('not integer', 1.23) }
+
+      context 'good.zip(good)' do
+        subject { good.zip(good).inspect }
+        it { is_expected.to eq '#<struct Results::Good value=[1, 1]>' }
+      end
+
+      context 'good.zip(bad1).zip(bad2)' do
+        subject { good.zip(bad1).zip(bad2).inspect }
+        it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not nonzero", input=0>, ' +
+                                                          '#<struct Results::Because error="not integer", input=1.23>]>' }
+      end
+
+    end
+
   end
 
 end
