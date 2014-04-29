@@ -86,6 +86,10 @@ module Results
       yield(value)
     end
 
+    def and
+      self
+    end
+
     private
 
     def extract_predicate_and_message(msg_or_proc_or_filter, v)
@@ -117,6 +121,34 @@ module Results
 
     def validate
       self
+    end
+
+    def and
+      And.new(self)
+    end
+
+    And = Struct.new(:prev_bad) do
+      def when(*args, &blk)
+        accumulate(:when, *args, &blk)
+      end
+
+      def when_not(*args, &blk)
+        accumulate(:when_not, *args, &blk)
+      end
+
+      private
+
+      def accumulate(method, *args, &blk)
+        next_result = Good.new(input).send(method, *args, &blk)
+        case next_result
+        when Good then prev_bad
+        when Bad  then Bad.new(prev_bad.why + next_result.why)
+        end
+      end
+
+      def input
+        prev_bad.why.last.input
+      end
     end
   end
 

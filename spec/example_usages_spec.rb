@@ -124,9 +124,9 @@ describe 'Example usages' do
 
     describe 'Multiple filters and validations of a single input' do
 
-      context 'Results.new(1.23).when(:integer?).and.when(:zero?)', :pending => 'support #and' do
+      context 'Results.new(1.23).when(:integer?).and.when(:zero?)' do
         subject { Results.new(1.23).when(:integer?).and.when(:zero?).inspect }
-        it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not integer", input=1.23>,' +
+        it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not integer", input=1.23>, ' +
                                                           '#<struct Results::Because error="not zero", input=1.23>]>' }
       end
 

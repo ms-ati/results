@@ -252,6 +252,10 @@ describe Results do
       end
     end
 
+    describe '#and' do
+      subject { good.and }
+      it { is_expected.to be good }
+    end
   end
 
   ##
@@ -283,6 +287,33 @@ describe Results do
       end
     end
 
+    describe '#and' do
+      describe '#when' do
+        context 'filter is true' do
+          subject { bad.and.when('filter') { |_| true } }
+          it { is_expected.to be bad }
+        end
+
+        context 'filter is false' do
+          subject { bad.and.when('filter') { |_| false } }
+          it { is_expected.to eq Results::Bad.new(Results::Because.new(msg, input),
+                                                  Results::Because.new('not filter', input)) }
+        end
+      end
+
+      describe '#when_not' do
+        context 'filter is true' do
+          subject { bad.and.when_not('filter') { |_| true } }
+          it { is_expected.to eq Results::Bad.new(Results::Because.new(msg, input),
+                                                  Results::Because.new('filter', input)) }
+        end
+
+        context 'filter is false' do
+          subject { bad.and.when_not('filter') { |_| false } }
+          it { is_expected.to be bad }
+        end
+      end
+    end
   end
 
   ##
