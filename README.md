@@ -51,9 +51,9 @@ Once you have a `Good` or `Bad`, you can chain additional boolean filters using 
 ```ruby
 def parseAge21To45(str)
   # Syntax workaround due to no chaining on blocks - Open to suggestions!
-  a = parseAge(str)
-  b = a.when    ('under 45') { |v| v < 45 }
-  _ = b.when_not('under 21') { |v| v < 21 }
+  _ = parseAge(str)
+  _ = _.when    ('under 45') { |v| v < 45 }
+  _ = _.when_not('under 21') { |v| v < 21 }
 end
 
 parseAge21To45('29')
