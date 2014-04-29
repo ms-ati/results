@@ -192,9 +192,9 @@ r = Results.new(1.23).when_all(filters)
 
 #### Combine results of multiple inputs
 
-If you have two results, the simplest way to combine is with `#zip`. If both results
-are `Good`, it returns a `Good` containing an array of both values. If any results
-are `Bad`, it returns a `Bad` containing all failures.
+If you have two results, the simplest way to combine them is with `#zip`. If both results
+are good, it returns a `Good` containing an array of both values. However, if any results
+are bad, it returns a `Bad` containing all the failures.
 
 ```ruby
 good = Results::Good.new(1)
@@ -205,6 +205,23 @@ good.zip(good)
 #=> #<struct Results::Good value=[1, 1]>
 
 good.zip(bad1).zip(bad2)
+#=> #<struct Results::Bad why=[
+  #<struct Results::Because error="not nonzero", input=0>,
+  #<struct Results::Because error="not integer", input=1.23>]>
+```
+
+If you have a collection of results, you can combine them with `Results.combine`. If all
+results are good, it returns a single `Good` containing a collection of all the values.
+However, if any results are bad, it returns a single `Bad` containing all the failures.
+
+```ruby
+all_good_results = [good, good, good]
+some_bad_results = [bad1, good, bad2]
+
+Results.combine(all_good_results)
+#=> #<struct Results::Good value=[1, 1, 1]>
+
+Results.combine(some_bad_results)
 #=> #<struct Results::Bad why=[
   #<struct Results::Because error="not nonzero", input=0>,
   #<struct Results::Because error="not integer", input=1.23>]>

@@ -157,6 +157,20 @@ describe 'Example usages' do
                                                           '#<struct Results::Because error="not integer", input=1.23>]>' }
       end
 
+      let(:all_good_results) { [good, good, good] }
+      let(:some_bad_results) { [bad1, good, bad2] }
+
+      context 'Results.combine(all_good_results)' do
+        subject { Results.combine(all_good_results).inspect }
+        it { is_expected.to eq '#<struct Results::Good value=[1, 1, 1]>' }
+      end
+
+      context 'Results.combine(some_bad_results)' do
+        subject { Results.combine(some_bad_results).inspect }
+        it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not nonzero", input=0>, ' +
+                                                          '#<struct Results::Because error="not integer", input=1.23>]>' }
+      end
+
     end
 
   end

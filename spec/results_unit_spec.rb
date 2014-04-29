@@ -141,6 +141,39 @@ describe Results do
   end
 
   ##
+  # Combine a collection of multiple results
+  ##
+  describe '.combine' do
+    let(:all_goods) { Array.new(4) { |n| Results::Good.new(n) } }
+    let(:some_bads) { all_goods.map { |r| r.when('even') { |v| v % 2 == 0 } } }
+
+    context 'when all good results' do
+      subject { Results.combine(all_goods) }
+      it { is_expected.to eq Results::Good.new([0, 1, 2, 3]) }
+    end
+
+    context 'when some bad results' do
+      subject { Results.combine(some_bads) }
+      it { is_expected.to eq Results::Bad.new([1, 3].map { |v| Results::Because.new('not even', v) }) }
+    end
+
+    context 'when splatted all good results' do
+      subject { Results.combine(*all_goods) }
+      it { is_expected.to eq Results::Good.new([0, 1, 2, 3]) }
+    end
+
+    context 'when good results are arrays' do
+      subject { Results.combine(all_goods.map { |r| r.map { |n| [n] } }) }
+      it { is_expected.to eq Results::Good.new([[0], [1], [2], [3]]) }
+    end
+
+    context 'when empty' do
+      subject { lambda { Results.combine([]) } }
+      it { is_expected.to raise_error(ArgumentError, 'no results to combine') }
+    end
+  end
+
+  ##
   # Make a filter from the symbol name of a predicate method using .predicate
   ##
   describe '.predicate' do
@@ -185,6 +218,20 @@ describe Results do
   describe Results::Good do
     let(:value) { 1 }
     let(:good) { Results::Good.new(value) }
+
+    describe '#map' do
+      context 'with a function' do
+        subject { good.map { |v| v + 1 } }
+        it { is_expected.to eq Results::Good.new(2) }
+      end
+    end
+
+    describe '#flat_map' do
+      context 'with a function' do
+        subject { good.flat_map { |v| Results::Good.new(v + 1) } }
+        it { is_expected.to eq Results::Good.new(2) }
+      end
+    end
 
     describe '#when' do
       context 'with true predicate' do
@@ -344,6 +391,20 @@ describe Results do
     let(:msg) { 'epic fail' }
     let(:input) { 'abc' }
     let(:bad) { Results::Bad.new(msg, input) }
+
+    describe '#map' do
+      context 'with any function' do
+        subject { bad.map { |_| 'dummy' } }
+        it { is_expected.to be bad }
+      end
+    end
+
+    describe '#flat_map' do
+      context 'with any function' do
+        subject { bad.flat_map { |_| Results::Bad.new('dummy', 0) } }
+        it { is_expected.to be bad }
+      end
+    end
 
     describe '#when' do
       context 'with any predicate' do

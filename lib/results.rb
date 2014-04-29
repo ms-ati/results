@@ -46,6 +46,21 @@ module Results
   end
   module_function :when_not
 
+  # TODO: Extract this simple util somewhere else
+  HeadCombiner = Struct.new(:elements) do
+    def initialize(*args)
+      head, *tail = args
+      super(head.is_a?(HeadCombiner) ? head.elements + tail : args)
+    end
+  end
+
+  def combine(*args)
+    flat_args = (args.size == 1 && args.first.is_a?(Enumerable)) ? args.first : args
+    raise ArgumentError, 'no results to combine' if flat_args.empty?
+    flat_args.inject { |res, nxt| res.zip(nxt).map { |vs| HeadCombiner.new(*vs) } }.map { |hc| hc.elements }
+  end
+  module_function :combine
+
   def predicate(method_name)
     Filter.new(method_name.to_s.gsub(/\?\Z/, '')) { |v| v.send(method_name) }
   end
@@ -68,6 +83,16 @@ module Results
   end
 
   Good = Struct.new(:value) do
+    def map
+      flat_map { |v| Good.new(yield v) }
+    end
+
+    def flat_map
+      yield(value)
+    end
+
+    alias_method :validate, :flat_map
+
     def when(msg_or_proc_or_filter)
       validate do |v|
         predicate, msg_or_proc = extract_predicate_and_message(msg_or_proc_or_filter, v) { yield v }
@@ -80,10 +105,6 @@ module Results
         predicate, msg_or_proc = extract_predicate_and_message(msg_or_proc_or_filter, v) { yield v }
         !predicate ? self : Bad.new(Results.call_or_yield_or_return(msg_or_proc, v), v)
       end
-    end
-
-    def validate
-      yield(value)
     end
 
     def and
@@ -126,15 +147,21 @@ module Results
       super( flat_args.all? { |a| a.is_a? Because } ? flat_args : [Because.new(*flat_args)] )
     end
 
+    def map
+      self
+    end
+
+    def flat_map
+      self
+    end
+
+    alias_method :validate, :flat_map
+
     def when(msg_or_proc)
       self
     end
 
     def when_not(msg_or_proc)
-      self
-    end
-
-    def validate
       self
     end
 
