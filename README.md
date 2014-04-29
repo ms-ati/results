@@ -140,15 +140,12 @@ def valid?(str)
 end
 ```
 
-In fact it's even simpler, as the right thing will happen if you pass the symbol of
-the predicate name directly to `#when` or `#when_not`.
+Or even simpler, just pass the symbol of the predicate name directly to `#when` or `#when_not`.
 
 ```ruby
 # same as above
 def valid_short?(str)
-  Results.new(str)
-    .when_not(:nil?)
-    .when_not(:empty?)
+  Results.new(str).when_not(:nil?).when_not(:empty?)
 end
 ```
 
