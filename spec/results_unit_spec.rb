@@ -370,6 +370,24 @@ describe Results do
       end
     end
 
+    describe '#validate_all' do
+      context 'with validations all returning good' do
+        let(:validations_good) { Array.new(2) { |n| lambda { |_| Results::Good.new(n) } } }
+        subject { good.validate_all(validations_good) }
+        it { is_expected.to eq good }
+      end
+
+      context 'with validations all returning bad' do
+        let(:validations_bad) { Array.new(2) { |n| lambda { |i| Results::Bad.new("v#{n}", i) } } }
+        let(:expected_bad) { Results::Bad.new(
+          Results::Because.new('v0', value),
+          Results::Because.new('v1', value)) }
+
+        subject { good.validate_all(validations_bad) }
+        it { is_expected.to eq expected_bad }
+      end
+    end
+
     describe '#zip' do
       context 'when other is good' do
         subject { good.zip(good) }
@@ -520,6 +538,25 @@ describe Results do
           subject { bad.when_all_not(*filters_false) }
           it { is_expected.to be bad }
         end
+      end
+    end
+
+    describe '#validate_all' do
+      context 'with validations all returning good' do
+        let(:validations_good) { Array.new(2) { |n| lambda { |_| Results::Good.new(n) } } }
+        subject { bad.validate_all(validations_good) }
+        it { is_expected.to be bad }
+      end
+
+      context 'with validations all returning bad' do
+        let(:validations_bad) { Array.new(2) { |n| lambda { |i| Results::Bad.new("v#{n}", i) } } }
+        let(:expected_bad) { Results::Bad.new(
+          Results::Because.new(msg, input),
+          Results::Because.new('v0', input),
+          Results::Because.new('v1', input)) }
+
+        subject { bad.validate_all(validations_bad) }
+        it { is_expected.to eq expected_bad }
       end
     end
 

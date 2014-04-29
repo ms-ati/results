@@ -187,6 +187,8 @@ r = Results.new(1.23).when_all(filters)
   #<struct Results::Because error="not greater than 2", input=1.23>]>
 ```
 
+For a collection of validation functions, you can use `#validate_all` in a similar fashion.
+
 #### Combine results of multiple inputs
 
 If you have two results, the simplest way to combine them is with `#zip`. If both results

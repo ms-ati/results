@@ -119,6 +119,10 @@ module Results
       filters.flatten.inject(self) { |prev_result, filter| prev_result.and.when_not(filter) }
     end
 
+    def validate_all(*validations)
+      validations.flatten.inject(self) { |prev_result, validation| prev_result.and.validate(&validation) }
+    end
+
     def zip(other)
       case other
       when Good then Good.new([value, other.value])
@@ -178,6 +182,10 @@ module Results
         accumulate(:when_not, *args, &blk)
       end
 
+      def validate(*args, &blk)
+        accumulate(:validate, *args, &blk)
+      end
+
       private
 
       def accumulate(method, *args, &blk)
@@ -199,6 +207,10 @@ module Results
 
     def when_all_not(*filters)
       filters.flatten.inject(self) { |prev_result, filter| prev_result.and.when_not(filter) }
+    end
+
+    def validate_all(*validations)
+      validations.flatten.inject(self) { |prev_result, validation| prev_result.and.validate(&validation) }
     end
 
     def zip(other)
