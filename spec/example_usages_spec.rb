@@ -130,6 +130,15 @@ describe 'Example usages' do
                                                           '#<struct Results::Because error="not zero", input=1.23>]>' }
       end
 
+      let(:filters) { [:integer?, :zero?, Results::Filter.new('greater than 2') { |n| n > 2 }] }
+
+      context 'Results.new(1.23).when_all(filters)' do
+        subject { Results.new(1.23).when_all(filters).inspect }
+        it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="not integer", input=1.23>, ' +
+                                                          '#<struct Results::Because error="not zero", input=1.23>, ' +
+                                                          '#<struct Results::Because error="not greater than 2", input=1.23>]>' }
+      end
+
     end
 
   end

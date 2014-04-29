@@ -175,13 +175,13 @@ Results.new(0).when(:integer?).and.when(:zero?)
 Results.new(1.23).when(:integer?).and.when(:zero?)
 #=> #<struct Results::Bad why=[
   #<struct Results::Because error="not integer", input=1.23>,
-  #<struct Results::Because error="not zero",    input=1.23>]>
+  #<struct Results::Because error="not zero", input=1.23>]>
 ```
 
 You can also call `#when_all` with a list of filters.
 
 ```ruby
-filters = [:integer?, :zero?, Filter.new('greater than 2') { |n| n > 2 }]
+filters = [:integer?, :zero?, Results::Filter.new('greater than 2') { |n| n > 2 }]
 r = Results.new(1.23).when_all(filters)
 #=> #<struct Results::Bad why=[
   #<struct Results::Bad error="not integer", input=1.23>,

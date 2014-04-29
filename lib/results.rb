@@ -90,6 +90,10 @@ module Results
       self
     end
 
+    def when_all(*filters)
+      filters.flatten.inject(self) { |prev_result, filter| prev_result.and.when(filter) }
+    end
+
     private
 
     def extract_predicate_and_message(msg_or_proc_or_filter, v)
@@ -149,6 +153,10 @@ module Results
       def input
         prev_bad.why.last.input
       end
+    end
+
+    def when_all(*filters)
+      filters.flatten.inject(self) { |prev_result, filter| prev_result.and.when(filter) }
     end
   end
 
