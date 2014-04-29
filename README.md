@@ -178,7 +178,7 @@ Results.new(1.23).when(:integer?).and.when(:zero?)
   #<struct Results::Because error="not zero", input=1.23>]>
 ```
 
-You can also call `#when_all` with a list of filters.
+You can also call `#when_all` and `#when_all_not` with a list of filters.
 
 ```ruby
 filters = [:integer?, :zero?, Results::Filter.new('greater than 2') { |n| n > 2 }]

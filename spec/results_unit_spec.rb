@@ -289,6 +289,39 @@ describe Results do
         end
       end
     end
+
+    describe '#when_all_not' do
+      context 'with filters which are all true' do
+        let(:filters_true) { Array.new(2) { |n| Results::Filter.new("f#{n}") { |_| true } } }
+        let(:expected_bad) { Results::Bad.new(
+          Results::Because.new('f0', value),
+          Results::Because.new('f1', value)) }
+
+        context 'passed as array' do
+          subject { good.when_all_not(filters_true) }
+          it { is_expected.to eq expected_bad }
+        end
+
+        context 'passed splatted' do
+          subject { good.when_all_not(*filters_true) }
+          it { is_expected.to eq expected_bad }
+        end
+      end
+
+      context 'with filters which are all false' do
+        let(:filters_false) { Array.new(2) { |n| Results::Filter.new("f#{n}") { |_| false } } }
+
+        context 'passed as array' do
+          subject { good.when_all_not(filters_false) }
+          it { is_expected.to be good }
+        end
+
+        context 'passed splatted' do
+          subject { good.when_all_not(*filters_false) }
+          it { is_expected.to be good }
+        end
+      end
+    end
   end
 
   ##
@@ -378,6 +411,40 @@ describe Results do
         context 'passed splatted' do
           subject { bad.when_all(*filters_false) }
           it { is_expected.to eq expected_bad }
+        end
+      end
+    end
+
+    describe '#when_all_not' do
+      context 'with filters which are all true' do
+        let(:filters_true) { Array.new(2) { |n| Results::Filter.new("f#{n}") { |_| true } } }
+        let(:expected_bad) { Results::Bad.new(
+                               Results::Because.new(msg, input),
+                               Results::Because.new('f0', input),
+                               Results::Because.new('f1', input)) }
+
+        context 'passed as array' do
+          subject { bad.when_all_not(filters_true) }
+          it { is_expected.to eq expected_bad }
+        end
+
+        context 'passed splatted' do
+          subject { bad.when_all_not(*filters_true) }
+          it { is_expected.to eq expected_bad }
+        end
+      end
+
+      context 'with filters which are all false' do
+        let(:filters_false) { Array.new(2) { |n| Results::Filter.new("f#{n}") { |_| false } } }
+
+        context 'passed as array' do
+          subject { bad.when_all_not(filters_false) }
+          it { is_expected.to be bad }
+        end
+
+        context 'passed splatted' do
+          subject { bad.when_all_not(*filters_false) }
+          it { is_expected.to be bad }
         end
       end
     end
