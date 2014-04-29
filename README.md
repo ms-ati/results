@@ -184,9 +184,9 @@ You can also call `#when_all` with a list of filters.
 filters = [:integer?, :zero?, Results::Filter.new('greater than 2') { |n| n > 2 }]
 r = Results.new(1.23).when_all(filters)
 #=> #<struct Results::Bad why=[
-  #<struct Results::Bad error="not integer", input=1.23>,
-  #<struct Results::Bad error="not zero", input=1.23>,
-  #<struct Results::Bad error="not greater than 2", input=1.23>]>
+  #<struct Results::Because error="not integer", input=1.23>,
+  #<struct Results::Because error="not zero", input=1.23>,
+  #<struct Results::Because error="not greater than 2", input=1.23>]>
 ```
 
 #### Combine results of multiple inputs
