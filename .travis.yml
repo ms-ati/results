@@ -7,3 +7,5 @@ rvm:
   - 1.9.2
   - jruby-19mode
   - rbx-2
+# NOTE: See if the following fixes rbx on travis
+install: gem install bundler
