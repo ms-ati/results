@@ -37,11 +37,8 @@ def parseAge(str)
   Results.new(str) { |v| Integer(v) }
 end
 
-parseAge('1')
-#=> #<struct Results::Good value=1>
-
-parseAge('abc')
-#=> #<struct Results::Bad why=[#<struct Results::Because error="invalid value for integer", input="abc">]>
+parseAge('1')   # => #<struct Results::Good value=1>
+parseAge('abc') # => #<struct Results::Bad why=[#<struct Results::Because error="invalid value for integer", input="abc">]>
 ```
 
 ### Chained filters and validations
@@ -56,14 +53,9 @@ def parseAge21To45(str)
   _ = _.when_not('under 21') { |v| v < 21 }
 end
 
-parseAge21To45('29')
-#=> #<struct Results::Good value=29>
-
-parseAge21To45('65')
-#=> #<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>
-
-parseAge21To45('1')
-#=> #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=1>]>
+parseAge21To45('29') # => #<struct Results::Good value=29>
+parseAge21To45('65') # => #<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>
+parseAge21To45('1')  # => #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=1>]>
 ```
 
 Want to save your favorite filters? You can use the provided class `Filter`,
