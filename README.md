@@ -94,7 +94,8 @@ For convenience, the `#when` and `#when_not` methods can also accept a lambda fo
 the error message, to format the error message based on the input value.
 
 ```ruby
-parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 } # => #<struct Results::Bad why=[#<struct Results::Because error="65 is not under 45", input=65>]>
+parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 } 
+# => #<struct Results::Bad why=[#<struct Results::Because error="65 is not under 45", input=65>]>
 ```
 
 In a similar vein, if you already have a `Filter` or compatible duck-type
@@ -102,7 +103,8 @@ In a similar vein, if you already have a `Filter` or compatible duck-type
 `Good` or `Bad` via convenience functions `Results.when` and `Results.when_not`.
 
 ```ruby
-Results.when_not(under_21).call(16) # => #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>
+Results.when_not(under_21).call(16) 
+# => #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>
 ```
 
 Note that this is equivalent to:
@@ -200,13 +202,11 @@ However, if any results are bad, it returns a single `Bad` containing all the fa
 all_good_results = [good, good, good]
 some_bad_results = [bad1, good, bad2]
 
-Results.combine(all_good_results)
-#=> #<struct Results::Good value=[1, 1, 1]>
+Results.combine(all_good_results) # => #<struct Results::Good value=[1, 1, 1]>
 
-Results.combine(some_bad_results)
-#=> #<struct Results::Bad why=[
-  #<struct Results::Because error="not nonzero", input=0>,
-  #<struct Results::Because error="not integer", input=1.23>]>
+Results.combine(some_bad_results) # => #<struct Results::Bad why=[
+                                  #      #<struct Results::Because error="not nonzero", input=0>,
+                                  #      #<struct Results::Because error="not integer", input=1.23>]>
 ```
 
 NOTE: this section is under construction...
