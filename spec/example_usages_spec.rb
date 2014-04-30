@@ -89,7 +89,11 @@ describe 'Example usages' do
     end
 
     context 'parseAge("16").when(under_45).when_not(under_21)' do
-      subject { parseAge('16').when(under_45).when_not(under_21).inspect }
+      subject {
+        parseAge('16')
+          .when(under_45)
+          .when_not(under_21).inspect
+      }
       it { is_expected.to eq '#<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>' }
     end
 
