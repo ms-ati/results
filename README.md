@@ -69,8 +69,9 @@ under_45 = Results::Filter.new('under 45') { |v| v < 45 }
 under_21 = lambda { |v| v < 21 }.tap { |l| l.define_singleton_method(:message) { 'under 21' } }
 
 # Both work the same way
-parseAge('65').when(under_45).when_not(under_21)
-#=> #<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>
+parseAge('65')
+  .when(under_45)
+  .when_not(under_21) # => #<struct Results::Bad why=[#<struct Results::Because error="not under 45", input=65>]>
 ```
 
 You can also chain validation functions (returning `Good` or `Bad` instead of `Boolean`) using `#validate`.
@@ -85,19 +86,15 @@ def parseAgeRange(str)
   end
 end
 
-parseAgeRange('29')
-#=> #<struct Results::Good value=29>
-
-parseAgeRange('65')
-#=> #<struct Results::Bad why=[#<struct Results::Because error="not between 21 and 45", input=65>]>
+parseAgeRange('29') # => #<struct Results::Good value=29>
+parseAgeRange('65') # => #<struct Results::Bad why=[#<struct Results::Because error="not between 21 and 45", input=65>]>
 ```
 
 For convenience, the `#when` and `#when_not` methods can also accept a lambda for
 the error message, to format the error message based on the input value.
 
 ```ruby
-parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 }
-#=> #<struct Results::Bad why=[#<struct Results::Because error="65 is not under 45", input=65>]>
+parseAge('65').when(lambda { |v| "#{v} is not under 45" }) { |v| v < 45 } # => #<struct Results::Bad why=[#<struct Results::Because error="65 is not under 45", input=65>]>
 ```
 
 In a similar vein, if you already have a `Filter` or compatible duck-type
@@ -105,8 +102,7 @@ In a similar vein, if you already have a `Filter` or compatible duck-type
 `Good` or `Bad` via convenience functions `Results.when` and `Results.when_not`.
 
 ```ruby
-Results.when_not(under_21).call(16)
-#=> #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>
+Results.when_not(under_21).call(16) # => #<struct Results::Bad why=[#<struct Results::Because error="under 21", input=16>]>
 ```
 
 Note that this is equivalent to:
@@ -158,25 +154,22 @@ One simple way is to intersperse the `#and` method between your chained `#when` 
 
 ```ruby
 # Good still works as before
-Results.new(0).when(:integer?).and.when(:zero?)
-#=> #<struct Results::Good value=0>
+Results.new(0).when(:integer?).and.when(:zero?)    # => #<struct Results::Good value=0>
 
 # Bad accumulates multiple failures
-Results.new(1.23).when(:integer?).and.when(:zero?)
-#=> #<struct Results::Bad why=[
-  #<struct Results::Because error="not integer", input=1.23>,
-  #<struct Results::Because error="not zero", input=1.23>]>
+Results.new(1.23).when(:integer?).and.when(:zero?) # => #<struct Results::Bad why=[
+                                                   #      #<struct Results::Because error="not integer", input=1.23>,
+                                                   #      #<struct Results::Because error="not zero", input=1.23>]>
 ```
 
 You can also call `#when_all` and`#when_all_not` with a collection of filters.
 
 ```ruby
 filters = [:integer?, :zero?, Results::Filter.new('greater than 2') { |n| n > 2 }]
-r = Results.new(1.23).when_all(filters)
-#=> #<struct Results::Bad why=[
-  #<struct Results::Because error="not integer", input=1.23>,
-  #<struct Results::Because error="not zero", input=1.23>,
-  #<struct Results::Because error="not greater than 2", input=1.23>]>
+r = Results.new(1.23).when_all(filters) # => #<struct Results::Bad why=[
+                                        #      #<struct Results::Because error="not integer", input=1.23>,
+                                        #      #<struct Results::Because error="not zero", input=1.23>,
+                                        #      #<struct Results::Because error="not greater than 2", input=1.23>]>
 ```
 
 For a collection of validation functions, you can use `#validate_all` in a similar fashion.
@@ -192,13 +185,11 @@ good = Results::Good.new(1)
 bad1 = Results::Bad.new('not nonzero', 0)
 bad2 = Results::Bad.new('not integer', 1.23)
 
-good.zip(good)
-#=> #<struct Results::Good value=[1, 1]>
+good.zip(good)           # => #<struct Results::Good value=[1, 1]>
 
-good.zip(bad1).zip(bad2)
-#=> #<struct Results::Bad why=[
-  #<struct Results::Because error="not nonzero", input=0>,
-  #<struct Results::Because error="not integer", input=1.23>]>
+good.zip(bad1).zip(bad2) # => #<struct Results::Bad why=[
+                         #      #<struct Results::Because error="not nonzero", input=0>,
+                         #      #<struct Results::Because error="not integer", input=1.23>]>
 ```
 
 If you have a collection of results, you can combine them with `Results.combine`. If all
