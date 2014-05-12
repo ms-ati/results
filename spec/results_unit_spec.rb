@@ -566,9 +566,18 @@ describe Results do
         it { is_expected.to be bad }
       end
 
-      context 'when other is bad' do
+      context 'when other is a single bad' do
         subject { bad.zip(bad) }
-        it { is_expected.to eq Results::Bad.new(bad.why + bad.why) }
+        it { is_expected.to eq Results::Bad.new([bad.why, bad.why]) }
+      end
+
+      context 'when self and/or other is a multiple bad' do
+        let(:multi_why) { [Results::Because.new('foo', 42),
+                           Results::Because.new('bar', 42)] }
+        let(:multi_bad) { Results::Bad.new(multi_why) }
+        it { expect(bad.zip(multi_bad)).to       eq Results::Bad.new([bad.why] + multi_why) }
+        it { expect(multi_bad.zip(bad)).to       eq Results::Bad.new(multi_why + [bad.why]) }
+        it { expect(multi_bad.zip(multi_bad)).to eq Results::Bad.new(multi_why + multi_why) }
       end
     end
   end
