@@ -11,8 +11,6 @@ Gem::Specification.new do |s|
   s.description = 'Results is a functional combinator of results which are either Good or Bad inspired by ScalaUtils\'s Or and Every classes'
   s.license     = 'MIT'
 
-  s.rubyforge_project = 'results'
-
   # Assembles gem files via git commands
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
