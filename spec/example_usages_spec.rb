@@ -179,4 +179,48 @@ describe 'Example usages' do
 
   end
 
+  describe 'TODO: Name This Usage Example' do
+    # A deceptively simple function:
+    #   Given a series of HTML colors with weights, combine them.
+    #
+    # Colors may be specified as HTML color name, snake-case id, 3-digit hex
+    # rgb, 6-digit hex rgb, or base-10 rgb triplet. Source data comes from
+    # Wikipedia,via:
+    #   https://github.com/codebrainz/color-names/blob/master/output/colors.csv
+    #
+    # So where may errors occur?
+    #   1. Parsing of input, which must be a hash
+    #      a. Value for 'summary' must be a hash
+    #         1. Value for 'num_rows' must be an integer
+    #         2. Value for 'timestamp' must be a string
+    #      b. Value for 'rows' must be an array
+    #         1. Each row must be a hash
+    #            a. Value for 'color' must be a string
+    #            b. Value for 'weight' must be a float
+    #   2. Semantic meaning of parsed input
+    #      a. Value for 'num_rows' must be a valid non-negative integer which
+    #         matches actual number of rows
+    #      b. Value for 'timestamp' must be a valid ISO timestamp
+    #      c. Values for 'color' must be valid colors in the required format
+    #   3. Combination
+    #      a. Values combine ok (no crash in implementation)
+    #      b. Resulting color is a valid html color
+    #   4. Presentation of result
+    #      a. Resulting color is rendered as html color
+    #
+    # Let's build this out of individually testable, composed functions.
+
+    let(:input_good) { {
+      'summary' => {
+        'num_rows'  => 2,
+        'timestamp' => '2014-05-20T16:39:00Z-0400'
+      },
+      'rows' => [
+        { 'color' => 'blue',   'weight' => 1.0 },
+        { 'color' => 'yellow', 'weight' => 1.0 }
+      ]
+    } }
+
+  end
+
 end
