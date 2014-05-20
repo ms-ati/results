@@ -2,6 +2,7 @@ require 'rescuer'
 
 module Results
   DEFAULT_EXCEPTIONS_TO_RESCUE_AS_BADS = [ArgumentError]
+
   DEFAULT_EXCEPTION_MESSAGE_TRANSFORMS = {
     ArgumentError => lambda do |m|
       r = /\Ainvalid (value|string) for ([A-Z][a-z]+)(\(\))?(: ".*")?\Z/
