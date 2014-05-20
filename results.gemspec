@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   # Runs rspec tests from rake
   s.add_development_dependency 'rake',  '~> 10.3.0'
-  s.add_development_dependency 'rspec', '3.0.0.beta2'
+  s.add_development_dependency 'rspec', '3.0.0.rc1'
 
   # Generates yard documentation
   if !(defined?(RUBY_ENGINE) && 'jruby' == RUBY_ENGINE)
