@@ -230,10 +230,19 @@ describe 'Example usages' do
     let(:input_when_bad_not_hash) { [] }
     let(:expect_out_bad_not_hash) { Results::Bad.new('not a hash', []) }
 
-    let(:input_when_bad_parsing_summary_and_rows) { { 'summary' => [], 'rows' => {} } }
+    let(:input_when_bad_parsing_summary_and_rows) { {
+      'summary' => [],
+      'rows'    => {},
+      'foo'     => 'bar'
+    } }
     let(:expect_out_bad_parsing_summary_and_rows) {
-      Results::Bad.new({ 'summary' => [Results::Because.new('not a hash', [])],
-                         'rows'    => [Results::Because.new('not an array', {})] })
+      Results::Bad.new(
+        {
+          'summary' => [Results::Because.new('not a hash', [])],
+          'rows'    => [Results::Because.new('not an array', {})],
+          :base     => [Results::Because.new('unknown attribute', 'foo')]
+        }
+      )
     }
 
     let(:input_when_bad_parsing_leaf_nodes) { {
@@ -251,15 +260,15 @@ describe 'Example usages' do
         {
           'summary' => {
             'num_rows'  => [Results::Because.new('not an integer', '2')],
-            'timestamp' => [Results::Because.new('not a string',   123456.7)]
+            'timestamp' => [Results::Because.new('not a string', 123456.7)]
           },
           'rows' => [
             {
               'color'   => [Results::Because.new('missing', nil)],
             },
             {
-              'color'   => [Results::Because.new('not a string',      :green)],
-              'weight'  => [Results::Because.new('not a number',      nil)],
+              'color'   => [Results::Because.new('not a string', :green)],
+              'weight'  => [Results::Because.new('not a number', nil)],
               :base     => [Results::Because.new('unknown attribute', 'foo')],
             }
           ]
