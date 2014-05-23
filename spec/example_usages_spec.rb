@@ -306,10 +306,10 @@ describe 'Example usages' do
       expect(combine_colors(input_when_bad_parsing_leaf_nodes)).to eq(expect_out_bad_parsing_leaf_nodes)
     end
 
-    # NOTE: how about Why::One, ::Many, ::Hash
+    # NOTE: how about Why::One, ::Many, ::Attr
     #   One holds a Because
     #   Many holds a non-empty array of Because
-    #   Hash holds a hash with values which are array of Because or hashes
+    #   Attr holds a hash with values which are array of Because or hashes
 
   end
 

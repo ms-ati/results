@@ -235,3 +235,5 @@ module Results
   end
 
 end
+
+require 'results/why'
