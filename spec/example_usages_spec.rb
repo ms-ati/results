@@ -181,11 +181,12 @@ describe 'Example usages' do
 
   describe 'TODO: Name This Usage Example' do
     # A deceptively simple function:
-    #   Given a series of HTML colors with weights, combine them.
+    #   Given a series of colors with weights, combine them.
     #
-    # Colors may be specified as HTML color name, snake-case id, 3-digit hex
+    # Colors may be specified via the full name, the snake-case id, 3-digit hex
     # rgb, 6-digit hex rgb, or base-10 rgb triplet. Source data comes from
     # Wikipedia,via:
+    #   http://en.wikipedia.org/wiki/List_of_colors
     #   https://github.com/codebrainz/color-names/blob/master/output/colors.csv
     #
     # So where may errors occur?
@@ -196,30 +197,110 @@ describe 'Example usages' do
     #      b. Value for 'rows' must be an array
     #         1. Each row must be a hash
     #            a. Value for 'color' must be a string
-    #            b. Value for 'weight' must be a float
+    #            b. Optional value for 'weight', if present, must be a number
     #   2. Semantic meaning of parsed input
-    #      a. Value for 'num_rows' must be a valid non-negative integer which
-    #         matches actual number of rows
+    #      a. Value for 'num_rows' must be non-negative and match actual number of rows
     #      b. Value for 'timestamp' must be a valid ISO timestamp
-    #      c. Values for 'color' must be valid colors in the required format
+    #      c. Value for 'color' must be a valid color in one of the allowed formats
+    #      d. Value for 'weight' must be non-negative, defaulting to 1 if absent
     #   3. Combination
-    #      a. Values combine ok (no crash in implementation)
-    #      b. Resulting color is a valid html color
+    #      a. Values combine ok
+    #      b. Find nearest named color
     #   4. Presentation of result
-    #      a. Resulting color is rendered as html color
+    #      a. Return name of combined color
     #
     # Let's build this out of individually testable, composed functions.
 
-    let(:input_good) { {
+    # Expected input after JSON load
+    let(:input_when_good) { {
       'summary' => {
-        'num_rows'  => 2,
-        'timestamp' => '2014-05-20T16:39:00Z-0400'
+        'num_rows'  => 2,                          # matches number of rows below
+        'timestamp' => '2014-05-20T16:39:00Z-0400' # JSON loads time as un-parsed ISO 8601 string
       },
       'rows' => [
-        { 'color' => 'blue',   'weight' => 1.0 },
-        { 'color' => 'yellow', 'weight' => 1.0 }
+        { 'color' => 'red'                    }, # ok to have no weight
+        { 'color' => 'green', 'weight' => 1.0 }  # float weight is ok
       ]
     } }
+
+    # Expected good output, matching combined result to named color
+    let(:expect_out_good) { Results::Good.new('Yellow') }
+
+    # Bad inputs and outputs
+    let(:input_when_bad_not_hash) { [] }
+    let(:expect_out_bad_not_hash) { Results::Bad.new('not a hash', []) }
+
+    let(:input_when_bad_parsing_summary_and_rows) { { 'summary' => [], 'rows' => {} } }
+    let(:expect_out_bad_parsing_summary_and_rows) {
+      Results::Bad.new({ 'summary' => [Results::Because.new('not a hash', [])],
+                         'rows'    => [Results::Because.new('not an array', {})] })
+    }
+
+    let(:input_when_bad_parsing_leaf_nodes) { {
+      'summary' => {
+        'num_rows'  => '2',                                    # not an integer
+        'timestamp' => 123456.7                                # not a string
+      },
+      'rows' => [
+        { 'weight' => 1 },                                     # missing color
+        { 'color' => :green, 'weight' => nil, 'foo' => 'bar' } # not a string, not a number, unknown 'foo'
+      ]
+    } }
+    let(:expect_out_bad_parsing_leaf_nodes) {
+      Results::Bad.new(
+        {
+          'summary' => {
+            'num_rows'  => [Results::Because.new('not an integer', '2')],
+            'timestamp' => [Results::Because.new('not a string',   123456.7)]
+          },
+          'rows' => [
+            {
+              'color'   => [Results::Because.new('missing', nil)],
+            },
+            {
+              'color'   => [Results::Because.new('not a string',      :green)],
+              'weight'  => [Results::Because.new('not a number',      nil)],
+              :base     => [Results::Because.new('unknown attribute', 'foo')],
+            }
+          ]
+        }
+      )
+    }
+
+    let(:table) { {
+      'red'    => { 'name' => 'Red',    'hex' => '#f00', 'rgb' => [255,   0, 0] },
+      'green'  => { 'name' => 'Green',  'hex' => '#0f0', 'rgb' => [0,   255, 0] },
+      'yellow' => { 'name' => 'Yellow', 'hex' => '#ff0', 'rgb' => [255, 255, 0] },
+    } }
+
+    def combine_colors(input)
+      _ = Results.new(input)
+      _ = _.when('a hash') { |v| v.is_a? Hash }
+    end
+
+    it 'returns good result on happy path' do
+      pending
+      expect(combine_colors(input_when_good)).to eq(expect_out_good)
+    end
+
+    it 'returns a single top-level bad result' do
+      expect(combine_colors(input_when_bad_not_hash)).to eq(expect_out_bad_not_hash)
+    end
+
+    it 'returns multiple parsing failures at first-level values' do
+      pending
+      expect(combine_colors(input_when_bad_parsing_summary_and_rows)).to eq(expect_out_bad_parsing_summary_and_rows)
+    end
+
+    it 'returns multiple parsing failures at leaf-node values' do
+      pending
+      expect(combine_colors(input_when_bad_parsing_leaf_nodes)).to eq(expect_out_bad_parsing_leaf_nodes)
+    end
+
+    # NOTE: how about Why::One, ::Many, ::Hash
+    #   One holds a Because
+    #   Many holds a non-empty array of Because
+    #   Hash holds a hash with values which are array of Because or hashes
 
   end
 
