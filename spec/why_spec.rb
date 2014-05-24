@@ -71,9 +71,21 @@ describe Why do
         it { is_expected.to eq([a_because]) }
       end
 
-      context 'when given anything other than an array containing Becauses' do
+      let(:arg_err_msg) { 'not an Array of at least one Because' }
+
+      context 'when given an array containing something other than a Because' do
         subject { lambda { Why::Many.new(['foo']) } }
-        it { is_expected.to raise_error(ArgumentError, 'not all Becauses') }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+
+      context 'when given an empty array' do
+        subject { lambda { Why::Many.new([]) } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+
+      context 'when given anything other than an array' do
+        subject { lambda { Why::Many.new('foo') } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
       end
     end
 
@@ -93,8 +105,82 @@ describe Why do
         it { is_expected.to eq(Why::Many.new([a_because, because_2])) }
       end
 
+      context 'when given a Many' do
+        subject { a_many + many_2 }
+        it { is_expected.to eq(Why::Many.new([a_because, because_2])) }
+      end
+
       context 'when given anything than than a Why' do
         subject { lambda { a_many + 'foo' } }
+        it { is_expected.to raise_error(ArgumentError, 'not a valid Why') }
+      end
+    end
+  end
+
+  describe Why::Named do
+    let(:a_named) { Why::Named.new({ 'a' => [a_because] }) }
+    let(:named_2) { Why::Named.new({ 'a' => [because_2] }) }
+
+    describe '.new, #becauses_by_name' do
+      context 'when given a hash containing a value of an array containing a Because' do
+        subject { a_named.becauses_by_name }
+        it { is_expected.to eq({ 'a' => [a_because] }) }
+      end
+
+      let(:arg_err_msg) { 'not a Hash whose values are Arrays of at least one Because' }
+
+      context 'when given a hash containing a value of an array containing something other than a Because' do
+        subject { lambda { Why::Named.new({ 'a' => ['foo'] }) } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+
+      context 'when given a hash containing a value of an empty array' do
+        subject { lambda { Why::Named.new({ 'a' => [] }) } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+
+      context 'when given an empty hash' do
+        subject { lambda { Why::Named.new({}) } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+
+      context 'when given anything other than a hash' do
+        subject { lambda { Why::Named.new('foo') } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+    end
+
+    describe '#==' do
+      it { expect(a_named).to eq(Why::Named.new({ 'a' => [Because.new('reason', 'input')] })) }
+    end
+
+    describe '#to_named' do
+      subject { a_named.to_named }
+      it { is_expected.to be(a_named) }
+    end
+
+    describe '#+' do
+      context 'when given a One' do
+        let(:a_one) { Why::One.new(because_2) }
+        subject { a_named + a_one }
+        it { is_expected.to eq(Why::Named.new({ 'a'   => [a_because],
+                                                :base => [because_2] })) }
+      end
+
+      context 'when given a Many' do
+        let(:a_many) { Why::Many.new([because_2]) }
+        subject { a_named + a_many }
+        it { is_expected.to eq(Why::Named.new({ 'a'   => [a_because],
+                                                :base => [because_2] })) }
+      end
+
+      context 'when given a Named' do
+        subject { a_named + named_2 }
+        it { is_expected.to eq(Why::Named.new({ 'a'   => [a_because, because_2] })) }
+      end
+
+      context 'when given anything than than a Why' do
+        subject { lambda { a_named + 'foo' } }
         it { is_expected.to raise_error(ArgumentError, 'not a valid Why') }
       end
     end
