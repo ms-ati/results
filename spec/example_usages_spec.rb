@@ -283,8 +283,9 @@ describe 'Example usages' do
     } }
 
     def combine_colors(input)
+      is_a_hash = Results::Filter.new('a hash') { |v| v.is_a? Hash }
       _ = Results.new(input)
-      _ = _.when('a hash') { |v| v.is_a? Hash }
+      _ = _.when(is_a_hash)
     end
 
     it 'returns good result on happy path' do
@@ -292,7 +293,7 @@ describe 'Example usages' do
       expect(combine_colors(input_when_good)).to eq(expect_out_good)
     end
 
-    it 'returns a single top-level bad result' do
+    it 'returns a single top-level bad result when input not a hash' do
       expect(combine_colors(input_when_bad_not_hash)).to eq(expect_out_bad_not_hash)
     end
 
