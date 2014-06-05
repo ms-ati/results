@@ -245,6 +245,24 @@ describe 'Example usages' do
       )
     }
 
+    let(:input_when_one_bad_row) { input_when_good.merge(
+      {
+        'rows' => [
+          input_when_good['rows'][0],  # copied a good row, no problems
+          ['weight', 1.0]              # not a hash
+        ]
+      })
+    }
+    let(:expect_out_one_bad_row) {
+      Results::Bad.new(
+        {
+          'rows' => {
+            1 => [Results::Because.new('not a hash', ['weight', 1.0])]
+          }
+        }
+      )
+    }
+
     let(:input_when_bad_parsing_leaf_nodes) { {
       'summary' => {
         'num_rows'  => '2',                                    # not an integer
@@ -262,16 +280,16 @@ describe 'Example usages' do
             'num_rows'  => [Results::Because.new('not an integer', '2')],
             'timestamp' => [Results::Because.new('not a string', 123456.7)]
           },
-          'rows' => [
-            {
-              'color'   => [Results::Because.new('missing', nil)],
+          'rows' => {
+            0 => {
+              'color'   => [Results::Because.new('missing', nil)]
             },
-            {
+            1 => {
               'color'   => [Results::Because.new('not a string', :green)],
               'weight'  => [Results::Because.new('not a number', nil)],
               :base     => [Results::Because.new('unknown attribute', 'foo')],
             }
-          ]
+          }
         }
       )
     }
@@ -300,6 +318,11 @@ describe 'Example usages' do
     it 'returns multiple parsing failures at first-level values' do
       pending
       expect(combine_colors(input_when_bad_parsing_summary_and_rows)).to eq(expect_out_bad_parsing_summary_and_rows)
+    end
+
+    it 'returns a parsing failure with index when a row is not a hash' do
+      pending
+      expect(combine_colors(input_when_one_bad_row)).to eq(expect_out_one_bad_row)
     end
 
     it 'returns multiple parsing failures at leaf-node values' do
