@@ -78,7 +78,8 @@ module Results
       def initialize(becauses_by_name)
         raise ArgumentError, 'not a Hash whose values are Arrays of at least one Because' unless
           becauses_by_name.is_a?(Hash) && !becauses_by_name.empty? &&
-            becauses_by_name.values.all? { |a| !a.empty? && a.all? { |b| b.is_a? Because } }
+            becauses_by_name.values.all? { |v| v.is_a?(Array) && !v.empty? &&
+              v.all? { |b| b.is_a? Because } }
         @becauses_by_name = becauses_by_name
       end
 

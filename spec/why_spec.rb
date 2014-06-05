@@ -139,6 +139,11 @@ describe Why do
         it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
       end
 
+      context 'when given a hash containing a value of anything other than an array' do
+        subject { lambda { Why::Named.new({ 'a' => 42 }) } }
+        it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
+      end
+
       context 'when given an empty hash' do
         subject { lambda { Why::Named.new({}) } }
         it { is_expected.to raise_error(ArgumentError, arg_err_msg) }
