@@ -17,10 +17,6 @@ module Results
         other.is_a?(Named) && other.becauses_by_name == self.becauses_by_name
       end
 
-      def to_named
-        self
-      end
-
       def +(other)
         case other
         when Named then Named.new(self.becauses_by_name.merge(other.becauses_by_name) { |_, a, b| a + b })
