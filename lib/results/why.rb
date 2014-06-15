@@ -19,10 +19,13 @@ module Results
       protected
 
       def promote(other)
-        case other
-        when One   then self.to_many
-        when Many  then self.to_many
-        when Named then self.to_named
+        case self
+        when Named then self
+        else case other
+             when One   then self.to_many
+             when Many  then self.to_many
+             when Named then self.to_named
+             end
         end
       end
 
@@ -111,10 +114,6 @@ module Results
           Named.new(self.becauses_by_name.merge(other.becauses_by_name) { |_, self_val, other_val| self_val + other_val })
         else super
         end
-      end
-
-      def promote(other)
-        self
       end
     end
   end
