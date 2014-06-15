@@ -16,11 +16,7 @@ module Results
         self.promote(other) + other.promote(self)
       end
 
-      private
-
-      def initialize
-        raise(TypeError, 'cannot instantiate abstract class') if self.class == Results::Why::Base
-      end
+      protected
 
       def promote(other)
         case other
@@ -28,6 +24,12 @@ module Results
         when Many  then self.to_many
         when Named then self.to_named
         end
+      end
+
+      private
+
+      def initialize
+        raise(TypeError, 'cannot instantiate abstract class') if self.class == Results::Why::Base
       end
     end
 
