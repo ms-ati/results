@@ -110,8 +110,7 @@ module Results
 
       def +(other)
         case other
-        when Named
-          Named.new(self.becauses_by_name.merge(other.becauses_by_name) { |_, self_val, other_val| self_val + other_val })
+        when Named then Named.new(self.becauses_by_name.merge(other.becauses_by_name) { |_, a, b| a + b })
         else super
         end
       end
