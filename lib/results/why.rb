@@ -4,6 +4,7 @@ require 'results/why/many'
 require 'results/why/named'
 
 module Results
+  module_function
 
   # Wraps `arg` in a `Why` by calling the appropriate constructor.
   def Why(arg)

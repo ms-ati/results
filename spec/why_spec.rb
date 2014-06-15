@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'results'
 
-include Results
-
-describe Why do
+describe Results::Why do
+  Because = Results::Because
+  Why     = Results::Why
 
   let(:a_because) { Because.new('reason', 'input') }
   let(:because_2) { Because.new('reason2', 'input2') }
@@ -20,22 +20,22 @@ describe Why do
   describe '(the function)' do
 
     context 'when given a single Because' do
-      subject { Why(a_because) }
+      subject { Results.Why(a_because) }
       it { is_expected.to eq(a_one) }
     end
 
     context 'when given an array containing a Because' do
-      subject { Why([a_because]) }
+      subject { Results.Why([a_because]) }
       it { is_expected.to eq(a_many) }
     end
 
     context 'when given a hash containing a value of an array containing a Because' do
-      subject { Why({ 'a' => [a_because] }) }
+      subject { Results.Why({ 'a' => [a_because] }) }
       it { is_expected.to eq(a_named) }
     end
 
     context 'when given anything other than a Because, an Array, or a Hash' do
-      subject { lambda { Why('foo') } }
+      subject { lambda { Results.Why('foo') } }
       it { is_expected.to raise_error(TypeError, "can't convert String into Why") }
     end
 
