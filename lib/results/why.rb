@@ -11,9 +11,9 @@ module Results
   module Why
 
     class Base
-      def +(that)
-        raise(ArgumentError, 'not a valid Why') unless that.is_a? Why::Base
-        self.promote(that) + that.promote(self)
+      def +(other)
+        raise(ArgumentError, 'not a valid Why') unless other.is_a? Why::Base
+        self.promote(other) + other.promote(self)
       end
 
       private
@@ -22,8 +22,8 @@ module Results
         raise(TypeError, 'cannot instantiate abstract class') if self.class == Results::Why::Base
       end
 
-      def promote(that)
-        case that
+      def promote(other)
+        case other
         when One   then self.to_many
         when Many  then self.to_many
         when Named then self.to_named
@@ -40,8 +40,8 @@ module Results
 
       attr_reader :because
 
-      def ==(that)
-        that.is_a?(One) && that.because == self.because
+      def ==(other)
+        other.is_a?(One) && other.because == self.because
       end
 
       def to_many
@@ -63,8 +63,8 @@ module Results
 
       attr_reader :becauses
 
-      def ==(that)
-        that.is_a?(Many) && that.becauses == self.becauses
+      def ==(other)
+        other.is_a?(Many) && other.becauses == self.becauses
       end
 
       def to_many
@@ -75,9 +75,9 @@ module Results
         Named.new({ name => self.becauses })
       end
 
-      def +(that)
-        case that
-        when Many then Many.new(self.becauses + that.becauses)
+      def +(other)
+        case other
+        when Many then Many.new(self.becauses + other.becauses)
         else super
         end
       end
@@ -95,23 +95,23 @@ module Results
 
       attr_reader :becauses_by_name
 
-      def ==(that)
-        that.is_a?(Named) && that.becauses_by_name == self.becauses_by_name
+      def ==(other)
+        other.is_a?(Named) && other.becauses_by_name == self.becauses_by_name
       end
 
       def to_named
         self
       end
 
-      def +(that)
-        case that
+      def +(other)
+        case other
         when Named
-          Named.new(self.becauses_by_name.merge(that.becauses_by_name) { |_, self_val, that_val| self_val + that_val })
+          Named.new(self.becauses_by_name.merge(other.becauses_by_name) { |_, self_val, other_val| self_val + other_val })
         else super
         end
       end
 
-      def promote(that)
+      def promote(other)
         self
       end
     end
