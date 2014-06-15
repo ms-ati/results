@@ -4,6 +4,9 @@ module Results
     DEFAULT_NAME = :base
 
     class Base
+      # Appends two `Why`'s together, promoting types if necessary.
+      # @param [Why::Base] other  a `Why` to combine with
+      # @return [Why::Base]       a {Why::One One}, a {Why::Many Many}, or a {Why::Named Named}
       def +(other)
         raise(ArgumentError, 'not a valid Why') unless other.is_a? Why::Base
         self.promote(other) + other.promote(self)
