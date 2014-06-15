@@ -5,6 +5,42 @@ include Results
 
 describe Why do
 
+  let(:a_because) { Because.new('reason', 'input') }
+  let(:because_2) { Because.new('reason2', 'input2') }
+
+  let(:a_one) { Why::One.new(a_because) }
+  let(:one_2) { Why::One.new(because_2) }
+
+  let(:a_many) { Why::Many.new([a_because]) }
+  let(:many_2) { Why::Many.new([because_2]) }
+
+  let(:a_named) { Why::Named.new({ 'a' => [a_because] }) }
+  let(:named_2) { Why::Named.new({ 'a' => [because_2] }) }
+
+  describe '(the function)' do
+
+    context 'when given a single Because' do
+      subject { Why(a_because) }
+      it { is_expected.to eq(a_one) }
+    end
+
+    context 'when given an array containing a Because' do
+      subject { Why([a_because]) }
+      it { is_expected.to eq(a_many) }
+    end
+
+    context 'when given a hash containing a value of an array containing a Because' do
+      subject { Why({ 'a' => [a_because] }) }
+      it { is_expected.to eq(a_named) }
+    end
+
+    context 'when given anything other than a Because, an Array, or a Hash' do
+      subject { lambda { Why('foo') } }
+      it { is_expected.to raise_error(TypeError, "can't convert String into Why") }
+    end
+
+  end
+
   describe Why::Base do
 
     describe '.new' do
@@ -14,12 +50,7 @@ describe Why do
 
   end
 
-  let(:a_because) { Because.new('reason', 'input') }
-  let(:because_2) { Because.new('reason2', 'input2') }
-
   describe Why::One do
-    let(:a_one) { Why::One.new(a_because) }
-    let(:one_2) { Why::One.new(because_2) }
 
     describe '.new, #because' do
       context 'when given a Because' do
@@ -62,8 +93,6 @@ describe Why do
   end
 
   describe Why::Many do
-    let(:a_many) { Why::Many.new([a_because]) }
-    let(:many_2) { Why::Many.new([because_2]) }
 
     describe '.new, #becauses' do
       context 'when given an array containing a Because' do
@@ -118,8 +147,6 @@ describe Why do
   end
 
   describe Why::Named do
-    let(:a_named) { Why::Named.new({ 'a' => [a_because] }) }
-    let(:named_2) { Why::Named.new({ 'a' => [because_2] }) }
 
     describe '.new, #becauses_by_name' do
       context 'when given a hash containing a value of an array containing a Because' do

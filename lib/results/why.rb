@@ -1,4 +1,13 @@
 module Results
+  def Why(arg)
+    case arg
+    when Because then Why::One.new(arg)
+    when Array   then Why::Many.new(arg)
+    when Hash    then Why::Named.new(arg)
+    else raise TypeError, "can't convert #{arg.class} into Why"
+    end
+  end
+
   module Why
 
     class Base
