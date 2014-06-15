@@ -38,12 +38,12 @@ module Results
 
     # Explains a Bad caused by exactly one Because
     class One < Base
+      attr_reader :because
+
       def initialize(because)
         raise ArgumentError, 'not a Because' unless because.is_a? Because
         @because = because
       end
-
-      attr_reader :because
 
       def ==(other)
         other.is_a?(One) && other.because == self.because
@@ -60,13 +60,13 @@ module Results
 
     # Explains a Bad caused by at least one Because
     class Many < Base
+      attr_reader :becauses
+
       def initialize(becauses)
         raise ArgumentError, 'not an Array of at least one Because' unless
           becauses.is_a?(Array) && !becauses.empty? && becauses.all? { |b| b.is_a? Because }
         @becauses = becauses
       end
-
-      attr_reader :becauses
 
       def ==(other)
         other.is_a?(Many) && other.becauses == self.becauses
@@ -90,6 +90,8 @@ module Results
 
     # Explains a Bad caused by at least one Because, each attributed to a named field
     class Named < Base
+      attr_reader :becauses_by_name
+
       def initialize(becauses_by_name)
         raise ArgumentError, 'not a Hash whose values are Arrays of at least one Because' unless
           becauses_by_name.is_a?(Hash) && !becauses_by_name.empty? &&
@@ -97,8 +99,6 @@ module Results
               v.all? { |b| b.is_a? Because } }
         @becauses_by_name = becauses_by_name
       end
-
-      attr_reader :becauses_by_name
 
       def ==(other)
         other.is_a?(Named) && other.becauses_by_name == self.becauses_by_name
