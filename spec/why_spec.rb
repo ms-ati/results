@@ -2,8 +2,9 @@ require 'spec_helper'
 require 'results'
 
 describe Results::Why do
+  # noinspection RubyConstantNamingConvention
+  Why     = Results::Why     # RubyMine flags this constant name as too short, why?
   Because = Results::Because
-  Why     = Results::Why
 
   let(:a_because) { Because.new('reason', 'input') }
   let(:because_2) { Because.new('reason2', 'input2') }
