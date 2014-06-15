@@ -20,6 +20,11 @@ describe Results::Why do
 
   describe '(the function)' do
 
+    context 'when given a valid Why' do
+      subject { Results.Why(a_one) }
+      it { is_expected.to be(a_one) }
+    end
+
     context 'when given a single Because' do
       subject { Results.Why(a_because) }
       it { is_expected.to eq(a_one) }
