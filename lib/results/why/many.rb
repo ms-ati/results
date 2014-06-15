@@ -19,7 +19,7 @@ module Results
         self
       end
 
-      def to_named(name = :base)
+      def to_named(name = DEFAULT_NAME)
         Named.new({ name => self.becauses })
       end
 

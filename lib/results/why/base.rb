@@ -1,5 +1,7 @@
 module Results
   module Why
+    # Follow AR convention, see http://guides.rubyonrails.org/active_record_validations.html#errors-base
+    DEFAULT_NAME = :base
 
     class Base
       def +(other)

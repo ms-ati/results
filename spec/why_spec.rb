@@ -74,6 +74,18 @@ describe Results::Why do
       it { is_expected.to eq(Why::Many.new([a_because])) }
     end
 
+    describe '#to_named' do
+      context 'when not given a name' do
+        subject { a_one.to_named }
+        it { is_expected.to eq(Why::Named.new({ :base => [a_because] })) }
+      end
+
+      context 'when given a name' do
+        subject { a_one.to_named('a_name') }
+        it { is_expected.to eq(Why::Named.new({ 'a_name' => [a_because] })) }
+      end
+    end
+
     describe '#+' do
       context 'when given a One' do
         subject { a_one + one_2 }
@@ -126,6 +138,18 @@ describe Results::Why do
     describe '#to_many' do
       subject { a_many.to_many }
       it { is_expected.to be(a_many) }
+    end
+
+    describe '#to_named' do
+      context 'when not given a name' do
+        subject { a_many.to_named }
+        it { is_expected.to eq(Why::Named.new({ :base => [a_because] })) }
+      end
+
+      context 'when given a name' do
+        subject { a_many.to_named('a_name') }
+        it { is_expected.to eq(Why::Named.new({ 'a_name' => [a_because] })) }
+      end
     end
 
     describe '#+' do
@@ -185,11 +209,6 @@ describe Results::Why do
 
     describe '#==' do
       it { expect(a_named).to eq(Why::Named.new({ :a => [Because.new('reason', 'input')] })) }
-    end
-
-    describe '#to_named' do
-      subject { a_named.to_named }
-      it { is_expected.to be(a_named) }
     end
 
     describe '#+' do

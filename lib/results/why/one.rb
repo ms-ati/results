@@ -18,8 +18,8 @@ module Results
         Many.new([self.because])
       end
 
-      def to_named
-        to_many.to_named
+      def to_named(name = DEFAULT_NAME)
+        to_many.to_named(name)
       end
     end
 
