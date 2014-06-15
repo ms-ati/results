@@ -11,14 +11,15 @@ module Results
   module Why
 
     class Base
-      def initialize
-        raise(TypeError, 'cannot instantiate abstract class') if self.class == Results::Why::Base
-      end
-      private :initialize
-
       def +(that)
         raise(ArgumentError, 'not a valid Why') unless that.is_a? Why::Base
         self.promote(that) + that.promote(self)
+      end
+
+      private
+
+      def initialize
+        raise(TypeError, 'cannot instantiate abstract class') if self.class == Results::Why::Base
       end
 
       def promote(that)
