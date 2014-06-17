@@ -10,6 +10,10 @@ module Results
         @because = because
       end
 
+      def input
+        because.input
+      end
+
       def ==(other)
         other.is_a?(One) && other.because == self.because
       end

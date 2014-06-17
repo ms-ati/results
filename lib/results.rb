@@ -1,4 +1,5 @@
 require 'rescuer'
+require 'results/why'
 
 module Results
   DEFAULT_EXCEPTIONS_TO_RESCUE_AS_BADS = [ArgumentError]
@@ -149,7 +150,15 @@ module Results
   Bad = Struct.new(:why) do
     def initialize(*args)
       flat_args = args.flatten
-      super( flat_args.all? { |a| a.is_a? Because } ? flat_args : [Because.new(*flat_args)] )
+      becauses =
+        if flat_args.size == 1 && (flat_args[0].is_a?(Hash) || flat_args[0].is_a?(Why::Base))
+          flat_args[0]
+        elsif flat_args.all? { |a| a.is_a? Because }
+          flat_args
+        else
+          Because.new(*flat_args)
+        end
+      super(Results.Why(becauses))
     end
 
     def map
@@ -190,15 +199,11 @@ module Results
       private
 
       def accumulate(method, *args, &blk)
-        next_result = Good.new(input).send(method, *args, &blk)
+        next_result = Good.new(prev_bad.why.input).send(method, *args, &blk)
         case next_result
         when Good then prev_bad
         when Bad  then Bad.new(prev_bad.why + next_result.why)
         end
-      end
-
-      def input
-        prev_bad.why.last.input
       end
     end
 
@@ -235,5 +240,3 @@ module Results
   end
 
 end
-
-require 'results/why'

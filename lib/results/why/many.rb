@@ -11,6 +11,10 @@ module Results
         @becauses = becauses
       end
 
+      def input
+        becauses.last.input
+      end
+
       def ==(other)
         other.is_a?(Many) && other.becauses == self.becauses
       end
