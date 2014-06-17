@@ -282,12 +282,12 @@ describe 'Example usages' do
           },
           'rows' => {
             0 => {
-              'color'   => [Results::Because.new('missing', nil)]
+              'color'   => [Results::Because.new('missing key', nil)]
             },
             1 => {
               'color'   => [Results::Because.new('not a string', :green)],
               'weight'  => [Results::Because.new('not a number', nil)],
-              :base     => [Results::Because.new('unknown attribute', 'foo')],
+              :base     => [Results::Because.new('unknown key', 'foo')],
             }
           }
         }
@@ -303,7 +303,17 @@ describe 'Example usages' do
     def combine_colors(input)
       is_a_hash = Results::Filter.new('a hash') { |v| v.is_a? Hash }
       _ = Results.new(input)
-      _ = _.when(is_a_hash)
+
+      # following lines are logically together: #validate_hash or something?
+      _ = _.when(is_a_hash) # it is a hash
+      _ = _.validate do |hsh|
+        known_keys = %w(summary rows)
+        missing_key = Results::Filter.new(lambda { |_| 'missing key' }) { |k| hsh.key? k }
+        unknown_key = Results::Filter.new(lambda { |_| 'unknown key' }) { |k| known_keys.include? k }
+
+        Results.combine(known_keys.map { |k| Results.new(k).when(missing_key) } +
+                          hsh.keys.map { |k| Results.new(k).when(unknown_key) })
+      end
     end
 
     it 'returns good result on happy path' do
@@ -316,7 +326,7 @@ describe 'Example usages' do
     end
 
     it 'returns multiple parsing failures at first-level values' do
-      pending
+      #pending
       expect(combine_colors(input_when_bad_parsing_summary_and_rows)).to eq(expect_out_bad_parsing_summary_and_rows)
     end
 
